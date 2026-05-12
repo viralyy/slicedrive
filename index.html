@@ -2,100 +2,144 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Slicedrive Panel</title>
+<title>Slicedrive</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
-  font-family: Arial;
-  background: #020617;
-  color: white;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f8fafc;
+  margin: 0;
+  color: #0f172a;
 }
 
-h1 { margin-bottom: 10px; }
+/* NAVBAR */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
 
-.box {
-  background: #0f172a;
+.logo {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.hero h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  color: #64748b;
+}
+
+/* MAIN BOX */
+.main-box {
+  max-width: 700px;
+  margin: auto;
+  background: white;
   padding: 20px;
   border-radius: 12px;
-  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
+/* INPUT */
 input, textarea {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #cbd5f5;
   margin-top: 10px;
 }
 
+/* BUTTON */
 button {
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   width: 100%;
   border: none;
   border-radius: 8px;
-  background: #22c55e;
+  background: #2563eb;
+  color: white;
   font-weight: bold;
   cursor: pointer;
 }
 
-button.secondary {
-  background: #334155;
-  color: white;
+.secondary {
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
+/* RESULT */
 .result {
   margin-top: 10px;
-  white-space: pre-wrap;
-  word-break: break-all;
-  background: #020617;
+  background: #f1f5f9;
   padding: 10px;
   border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
+/* PROGRESS */
 .progress {
+  height: 6px;
+  background: #e2e8f0;
   margin-top: 10px;
-  height: 8px;
-  background: #1e293b;
   border-radius: 10px;
-  overflow: hidden;
 }
 
 .bar {
   height: 100%;
   width: 0%;
-  background: #22c55e;
+  background: #2563eb;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🚀 Slicedrive Panel</h1>
-
-<!-- SINGLE -->
-<div class="box">
-  <h3>Single Generator</h3>
-  <input id="singleUrl" placeholder="https://example.com">
-  <button onclick="genSingle()">Generate</button>
-  <div class="result" id="singleResult"></div>
+<div class="nav">
+  <div class="logo">🚀 Slicedrive</div>
 </div>
 
-<!-- BULK -->
-<div class="box">
-  <h3>Bulk Generator</h3>
-  <textarea id="bulkUrls" rows="6" placeholder="1 link per baris..."></textarea>
-  
-  <button onclick="genBulk()">Generate Bulk</button>
-  <button class="secondary" onclick="copyAll()">Copy All</button>
+<div class="hero">
+  <h1>Simple & Fast Shortlink Tool</h1>
+  <p>Buat shortlink .mp4 dengan cepat & gratis</p>
+</div>
 
-  <div class="progress">
-    <div class="bar" id="progressBar"></div>
-  </div>
+<div class="main-box">
 
-  <div class="result" id="bulkResult"></div>
+<h3>Generate Link</h3>
+
+<input id="singleUrl" placeholder="Masukkan link...">
+<button onclick="genSingle()">Generate</button>
+
+<div class="result" id="singleResult"></div>
+
+<hr style="margin:20px 0">
+
+<h3>Bulk Generator</h3>
+
+<textarea id="bulkUrls" rows="5" placeholder="1 link per baris"></textarea>
+
+<button onclick="genBulk()">Generate Bulk</button>
+<button class="secondary" onclick="copyAll()">Copy All</button>
+
+<div class="progress">
+  <div class="bar" id="bar"></div>
+</div>
+
+<div class="result" id="bulkResult"></div>
+
 </div>
 
 <script>
@@ -109,54 +153,40 @@ async function genSingle() {
   const res = await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
   const data = await res.json();
 
-  document.getElementById("singleResult").innerHTML =
-    `${data.short} <button onclick="copyText('${data.short}')">Copy</button>`;
+  navigator.clipboard.writeText(data.short);
+
+  document.getElementById("singleResult").innerText =
+    data.short + " (copied)";
 }
 
 // BULK
 async function genBulk() {
   const raw = document.getElementById("bulkUrls").value;
-  const urls = raw.split("\n").filter(x => x.trim() !== "");
-
-  if (urls.length === 0) return alert("Isi link dulu");
+  const urls = raw.split("\n").filter(x => x.trim());
 
   let hasil = "";
   let done = 0;
 
   for (let i = 0; i < urls.length; i++) {
-    const url = urls[i].trim();
-
     try {
-      const res = await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
+      const res = await fetch(`/create?url=${encodeURIComponent(urls[i])}&key=${API_KEY}`);
       const data = await res.json();
-      hasil += data.short + "\n";
+      hasil += (i+1) + ". " + data.short + "\n";
     } catch {
-      hasil += "ERROR: " + url + "\n";
+      hasil += (i+1) + ". ERROR\n";
     }
 
     done++;
-    updateProgress(done, urls.length);
+    document.getElementById("bar").style.width = (done/urls.length)*100 + "%";
     document.getElementById("bulkResult").innerText = hasil;
   }
 }
 
-// PROGRESS BAR
-function updateProgress(done, total) {
-  const percent = (done / total) * 100;
-  document.getElementById("progressBar").style.width = percent + "%";
-}
-
-// COPY TEXT
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-  alert("Copied!");
-}
-
-// COPY ALL
+// COPY
 function copyAll() {
   const text = document.getElementById("bulkResult").innerText;
   navigator.clipboard.writeText(text);
-  alert("Semua link berhasil di-copy!");
+  alert("Copied!");
 }
 </script>
 
