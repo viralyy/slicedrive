@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Shortlink Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      width: 320px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #22c55e;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 15px;
+      word-break: break-all;
+    }
+    a {
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>🔗 Shortlink</h2>
+
+  <input id="url" placeholder="Masukkan link..." />
+  <button onclick="buat()">Generate</button>
+
+  <div class="result" id="hasil"></div>
+
+  <hr style="margin:15px 0;">
+
+  <input id="slug" placeholder="Cek statistik slug..." />
+  <button onclick="cek()">Cek Stats</button>
+
+  <div class="result" id="stats"></div>
+</div>
+
+<script>
+async function buat() {
+  const url = document.getElementById("url").value;
+
+  if (!url) return alert("Isi link dulu!");
+
+  const res = await fetch(`/create?url=${encodeURIComponent(url)}`);
+  const data = await res.json();
+
+  document.getElementById("hasil").innerHTML = `
+    ✅ Shortlink:<br>
+    <a href="${data.short}" target="_blank">${data.short}</a>
+  `;
+}
+
+async function cek() {
+  const slug = document.getElementById("slug").value;
+
+  if (!slug) return alert("Isi slug!");
+
+  const clean = slug.replace(".mp4", "");
+
+  const res = await fetch(`/stats?slug=${clean}`);
+  const data = await res.json();
+
+  document.getElementById("stats").innerHTML = `
+    📊 Klik: ${data.clicks}<br>
+    🕒 Dibuat: ${new Date(data.createdAt).toLocaleString()}
+  `;
+}
+</script>
+
+</body>
+</html>
