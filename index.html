@@ -1,99 +1,162 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Shortlink Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .box {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
-      width: 320px;
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin-bottom: 10px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #22c55e;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 15px;
-      word-break: break-all;
-    }
-    a {
-      color: #38bdf8;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Slicedrive Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial;
+  background: #020617;
+  color: white;
+  padding: 20px;
+}
+
+h1 { margin-bottom: 10px; }
+
+.box {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #334155;
+  color: white;
+}
+
+.result {
+  margin-top: 10px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: #020617;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.progress {
+  margin-top: 10px;
+  height: 8px;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+}
+</style>
 </head>
+
 <body>
 
+<h1>🚀 Slicedrive Panel</h1>
+
+<!-- SINGLE -->
 <div class="box">
-  <h2>🔗 Shortlink</h2>
+  <h3>Single Generator</h3>
+  <input id="singleUrl" placeholder="https://example.com">
+  <button onclick="genSingle()">Generate</button>
+  <div class="result" id="singleResult"></div>
+</div>
 
-  <input id="url" placeholder="Masukkan link..." />
-  <button onclick="buat()">Generate</button>
+<!-- BULK -->
+<div class="box">
+  <h3>Bulk Generator</h3>
+  <textarea id="bulkUrls" rows="6" placeholder="1 link per baris..."></textarea>
+  
+  <button onclick="genBulk()">Generate Bulk</button>
+  <button class="secondary" onclick="copyAll()">Copy All</button>
 
-  <div class="result" id="hasil"></div>
+  <div class="progress">
+    <div class="bar" id="progressBar"></div>
+  </div>
 
-  <hr style="margin:15px 0;">
-
-  <input id="slug" placeholder="Cek statistik slug..." />
-  <button onclick="cek()">Cek Stats</button>
-
-  <div class="result" id="stats"></div>
+  <div class="result" id="bulkResult"></div>
 </div>
 
 <script>
-async function buat() {
-  const url = document.getElementById("url").value;
+const API_KEY = "bebas_isi_sendiri_123";
 
-  if (!url) return alert("Isi link dulu!");
+// SINGLE
+async function genSingle() {
+  const url = document.getElementById("singleUrl").value;
+  if (!url) return alert("Isi link dulu");
 
-  const res = await fetch(`/create?url=${encodeURIComponent(url)}`);
+  const res = await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
   const data = await res.json();
 
-  document.getElementById("hasil").innerHTML = `
-    ✅ Shortlink:<br>
-    <a href="${data.short}" target="_blank">${data.short}</a>
-  `;
+  document.getElementById("singleResult").innerHTML =
+    `${data.short} <button onclick="copyText('${data.short}')">Copy</button>`;
 }
 
-async function cek() {
-  const slug = document.getElementById("slug").value;
+// BULK
+async function genBulk() {
+  const raw = document.getElementById("bulkUrls").value;
+  const urls = raw.split("\n").filter(x => x.trim() !== "");
 
-  if (!slug) return alert("Isi slug!");
+  if (urls.length === 0) return alert("Isi link dulu");
 
-  const clean = slug.replace(".mp4", "");
+  let hasil = "";
+  let done = 0;
 
-  const res = await fetch(`/stats?slug=${clean}`);
-  const data = await res.json();
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i].trim();
 
-  document.getElementById("stats").innerHTML = `
-    📊 Klik: ${data.clicks}<br>
-    🕒 Dibuat: ${new Date(data.createdAt).toLocaleString()}
-  `;
+    try {
+      const res = await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
+      const data = await res.json();
+      hasil += data.short + "\n";
+    } catch {
+      hasil += "ERROR: " + url + "\n";
+    }
+
+    done++;
+    updateProgress(done, urls.length);
+    document.getElementById("bulkResult").innerText = hasil;
+  }
+}
+
+// PROGRESS BAR
+function updateProgress(done, total) {
+  const percent = (done / total) * 100;
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+// COPY TEXT
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  alert("Copied!");
+}
+
+// COPY ALL
+function copyAll() {
+  const text = document.getElementById("bulkResult").innerText;
+  navigator.clipboard.writeText(text);
+  alert("Semua link berhasil di-copy!");
 }
 </script>
 
