@@ -7,7 +7,6 @@
 
 <style>
 :root{
-  --bg:#0b1220;
   --card:#111827;
   --border:#1f2937;
   --text:#e5e7eb;
@@ -15,21 +14,31 @@
   --primary:#6366f1;
 }
 
+/* FIX GLOBAL */
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   font-family:system-ui;
-  background:linear-gradient(180deg,#020617,#0b1220);
   color:var(--text);
+
+  /* BACKGROUND HALUS */
+  background:
+    radial-gradient(circle at 20% 10%, rgba(99,102,241,0.15), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(59,130,246,0.15), transparent 40%),
+    linear-gradient(180deg,#020617 0%, #0b1220 100%);
 }
 
 /* HERO */
 .hero{
   text-align:center;
-  padding:50px 20px 25px;
+  padding:55px 20px 25px;
 }
 
 .hero h1{
-  font-size:32px;
+  font-size:34px;
   margin:0;
 }
 
@@ -47,12 +56,14 @@ body{
 
 /* CARD */
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
+  background:rgba(17,24,39,0.85);
+  backdrop-filter: blur(10px);
+
+  border:1px solid rgba(255,255,255,0.05);
   border-radius:20px;
   padding:20px;
-  box-shadow:0 25px 70px rgba(0,0,0,.6);
 
+  box-shadow:0 25px 70px rgba(0,0,0,.6);
   animation:pop .35s cubic-bezier(.2,1.4,.4,1);
 }
 
@@ -86,16 +97,22 @@ body{
   transform:scale(1.05);
 }
 
-/* INPUT */
+/* INPUT FIX */
 input,textarea{
   width:100%;
+  max-width:100%;
+  display:block;
+
   padding:16px;
   border-radius:14px;
   border:1px solid var(--border);
   background:#020617;
   color:white;
+
   margin-top:10px;
   font-size:15px;
+
+  resize:none;
 }
 
 input:focus, textarea:focus{
@@ -114,6 +131,7 @@ button{
   font-weight:600;
   font-size:15px;
   cursor:pointer;
+
   background:linear-gradient(90deg,#6366f1,#3b82f6);
   color:white;
 
@@ -173,7 +191,7 @@ button:active{
 
 /* DESKTOP */
 @media(min-width:900px){
-  .hero h1{font-size:38px;}
+  .hero h1{font-size:40px;}
   .container{max-width:900px;}
 }
 </style>
@@ -182,7 +200,7 @@ button:active{
 <body>
 
 <div class="hero">
-  <h1>🚀 Slicedrive</h1>
+  <h1>Slicedrive</h1>
   <p>Fast & clean shortlink generator</p>
 </div>
 
