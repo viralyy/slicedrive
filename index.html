@@ -7,57 +7,48 @@
 
 <style>
 :root{
-  --bg:#0f172a;
+  --bg:#0b1220;
   --card:#111827;
   --border:#1f2937;
   --text:#e5e7eb;
-  --muted:#9ca3af;
   --primary:#6366f1;
 }
-
-*{box-sizing:border-box}
 
 body{
   margin:0;
   font-family:system-ui;
-  background:var(--bg);
+  background:linear-gradient(180deg,#020617,#0b1220);
   color:var(--text);
 }
 
 /* HEADER */
 .header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
   padding:14px;
-  background:#020617;
+  text-align:center;
+  font-weight:600;
   border-bottom:1px solid var(--border);
-}
-
-.logo{
-  font-weight:700;
-  font-size:15px;
 }
 
 /* CONTAINER */
 .container{
-  padding:16px;
   max-width:500px;
   margin:auto;
-}
-
-/* TITLE */
-.title{
-  font-size:20px;
-  margin-bottom:12px;
+  padding:16px;
 }
 
 /* CARD */
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:14px;
-  padding:14px;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  animation:fade .4s ease;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px)}
+  to{opacity:1; transform:translateY(0)}
 }
 
 /* TABS */
@@ -65,7 +56,6 @@ body{
   display:flex;
   background:#020617;
   border-radius:10px;
-  overflow:hidden;
   margin-bottom:12px;
 }
 
@@ -73,9 +63,9 @@ body{
   flex:1;
   text-align:center;
   padding:10px;
-  font-size:13px;
   cursor:pointer;
-  color:var(--muted);
+  color:#9ca3af;
+  transition:.2s;
 }
 
 .tab.active{
@@ -106,6 +96,20 @@ button{
   cursor:pointer;
   background:linear-gradient(90deg,#6366f1,#3b82f6);
   color:white;
+  transition:.2s;
+}
+
+button:hover{
+  transform:scale(1.02);
+  opacity:.95;
+}
+
+/* LOADING */
+.loading{
+  text-align:center;
+  margin-top:10px;
+  font-size:13px;
+  opacity:.7;
 }
 
 /* RESULT */
@@ -116,23 +120,8 @@ button{
   padding:10px;
   border-radius:10px;
   font-size:13px;
-  word-break:break-all;
   white-space:pre-wrap;
-}
-
-/* PROGRESS */
-.progress{
-  height:4px;
-  background:#020617;
-  border-radius:10px;
-  margin-top:10px;
-  overflow:hidden;
-}
-
-.bar{
-  height:100%;
-  width:0%;
-  background:var(--primary);
+  animation:fade .3s ease;
 }
 
 /* TOAST */
@@ -144,7 +133,6 @@ button{
   background:#111827;
   padding:10px 16px;
   border-radius:10px;
-  font-size:13px;
   opacity:0;
   transition:.3s;
 }
@@ -154,35 +142,28 @@ button{
 
 <body>
 
-<div class="header">
-  <div class="logo">🚀 Slicedrive</div>
-</div>
+<div class="header">🚀 Slicedrive</div>
 
 <div class="container">
 
-<div class="title">Create Link</div>
-
 <div class="card">
 
-<!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('single')">Single URL</div>
-  <div class="tab" onclick="switchTab('bulk')">Bulk URL</div>
+  <div class="tab active" onclick="switchTab('single',event)">Single</div>
+  <div class="tab" onclick="switchTab('bulk',event)">Bulk</div>
 </div>
 
-<!-- SINGLE -->
 <div id="singleBox">
-  <input id="singleUrl" placeholder="Paste your long URL">
+  <input id="singleUrl" placeholder="Paste your URL">
 </div>
 
-<!-- BULK -->
 <div id="bulkBox" style="display:none;">
   <textarea id="bulkUrls" rows="5" placeholder="1 link per baris"></textarea>
 </div>
 
-<button onclick="handleGenerate()">Create Link</button>
+<button onclick="generate()">Create Link</button>
 
-<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="loading" id="loading" style="display:none;">Processing...</div>
 
 <div class="result" id="result"></div>
 
@@ -193,8 +174,8 @@ button{
 <div class="toast" id="toast">Copied</div>
 
 <script>
-const API_KEY = "bebas_isi_sendiri_123";
-let mode = "single";
+const API_KEY="bebas_isi_sendiri_123";
+let mode="single";
 
 function showToast(msg){
   const t=document.getElementById("toast");
@@ -203,37 +184,39 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove("show"),1500);
 }
 
-function switchTab(type){
-  mode = type;
-
+function switchTab(type,e){
+  mode=type;
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  event.target.classList.add("active");
+  e.target.classList.add("active");
 
   document.getElementById("singleBox").style.display = type==="single"?"block":"none";
   document.getElementById("bulkBox").style.display = type==="bulk"?"block":"none";
 }
 
-// MAIN GENERATE
-async function handleGenerate(){
+async function generate(){
+  const loading=document.getElementById("loading");
+  const result=document.getElementById("result");
+
+  loading.style.display="block";
+  result.innerText="";
+
   if(mode==="single"){
     const url=document.getElementById("singleUrl").value;
-    if(!url) return showToast("Isi link dulu");
+    if(!url){loading.style.display="none"; return;}
 
     const res=await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
     const data=await res.json();
 
+    result.innerText=data.short;
     navigator.clipboard.writeText(data.short);
-    document.getElementById("result").innerText=data.short;
-
     showToast("Copied");
   }
 
   else{
     const raw=document.getElementById("bulkUrls").value;
-    const urls=raw.split("\\n").filter(x=>x.trim());
+    const urls=raw.split("\n").filter(x=>x.trim());
 
     let hasil="";
-    let done=0;
 
     for(let i=0;i<urls.length;i++){
       try{
@@ -243,15 +226,14 @@ async function handleGenerate(){
       }catch{
         hasil += (i+1)+". ERROR\\n";
       }
-
-      done++;
-      document.getElementById("bar").style.width=(done/urls.length)*100+"%";
-      document.getElementById("result").innerText=hasil;
     }
 
+    result.innerText=hasil;
     navigator.clipboard.writeText(hasil);
     showToast("Bulk copied");
   }
+
+  loading.style.display="none";
 }
 </script>
 
