@@ -11,6 +11,7 @@
   --card:#111827;
   --border:#1f2937;
   --text:#e5e7eb;
+  --muted:#9ca3af;
   --primary:#6366f1;
 }
 
@@ -21,17 +22,25 @@ body{
   color:var(--text);
 }
 
-/* HEADER */
-.header{
-  padding:14px;
+/* HERO */
+.hero{
   text-align:center;
-  font-weight:600;
-  border-bottom:1px solid var(--border);
+  padding:50px 20px 25px;
+}
+
+.hero h1{
+  font-size:32px;
+  margin:0;
+}
+
+.hero p{
+  color:var(--muted);
+  margin-top:8px;
 }
 
 /* CONTAINER */
 .container{
-  max-width:500px;
+  max-width:780px;
   margin:auto;
   padding:16px;
 }
@@ -40,68 +49,86 @@ body{
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.4);
-  animation:fade .4s ease;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 25px 70px rgba(0,0,0,.6);
+
+  animation:pop .35s cubic-bezier(.2,1.4,.4,1);
 }
 
-@keyframes fade{
-  from{opacity:0; transform:translateY(10px)}
-  to{opacity:1; transform:translateY(0)}
+@keyframes pop{
+  0%{transform:scale(.9) translateY(30px); opacity:0}
+  100%{transform:scale(1); opacity:1}
 }
 
 /* TABS */
 .tabs{
   display:flex;
   background:#020617;
-  border-radius:10px;
-  margin-bottom:12px;
+  border-radius:14px;
+  margin-bottom:16px;
 }
 
 .tab{
   flex:1;
   text-align:center;
-  padding:10px;
+  padding:14px;
   cursor:pointer;
-  color:#9ca3af;
-  transition:.2s;
+  color:var(--muted);
+  font-size:14px;
+  transition:.15s;
 }
 
 .tab.active{
   background:var(--card);
   color:white;
+  border-radius:14px;
+  transform:scale(1.05);
 }
 
 /* INPUT */
 input,textarea{
   width:100%;
-  padding:12px;
-  border-radius:10px;
+  padding:16px;
+  border-radius:14px;
   border:1px solid var(--border);
   background:#020617;
   color:white;
   margin-top:10px;
-  font-size:14px;
+  font-size:15px;
+}
+
+input:focus, textarea:focus{
+  outline:none;
+  border-color:#6366f1;
+  box-shadow:0 0 0 2px rgba(99,102,241,.3);
 }
 
 /* BUTTON */
 button{
   width:100%;
-  padding:13px;
-  margin-top:12px;
+  padding:16px;
+  margin-top:16px;
   border:none;
-  border-radius:10px;
+  border-radius:14px;
   font-weight:600;
+  font-size:15px;
   cursor:pointer;
   background:linear-gradient(90deg,#6366f1,#3b82f6);
   color:white;
-  transition:.2s;
+
+  transform:scale(1);
+  transition:transform .08s ease, box-shadow .08s ease;
+  box-shadow:0 6px 0 #1e40af;
 }
 
 button:hover{
-  transform:scale(1.02);
-  opacity:.95;
+  transform:scale(1.03);
+}
+
+button:active{
+  transform:scale(0.96) translateY(3px);
+  box-shadow:0 2px 0 #1e40af;
 }
 
 /* LOADING */
@@ -114,14 +141,20 @@ button:hover{
 
 /* RESULT */
 .result{
-  margin-top:10px;
+  margin-top:16px;
   background:#020617;
   border:1px solid var(--border);
-  padding:10px;
-  border-radius:10px;
-  font-size:13px;
+  padding:14px;
+  border-radius:14px;
+  font-size:14px;
   white-space:pre-wrap;
-  animation:fade .3s ease;
+
+  animation:slideUp .25s ease;
+}
+
+@keyframes slideUp{
+  from{transform:translateY(15px); opacity:0}
+  to{transform:translateY(0); opacity:1}
 }
 
 /* TOAST */
@@ -131,37 +164,46 @@ button:hover{
   left:50%;
   transform:translateX(-50%);
   background:#111827;
-  padding:10px 16px;
-  border-radius:10px;
+  padding:12px 18px;
+  border-radius:12px;
   opacity:0;
   transition:.3s;
 }
 .toast.show{opacity:1}
+
+/* DESKTOP */
+@media(min-width:900px){
+  .hero h1{font-size:38px;}
+  .container{max-width:900px;}
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">🚀 Slicedrive</div>
+<div class="hero">
+  <h1>🚀 Slicedrive</h1>
+  <p>Fast & clean shortlink generator</p>
+</div>
 
 <div class="container">
 
 <div class="card">
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('single',event)">Single</div>
-  <div class="tab" onclick="switchTab('bulk',event)">Bulk</div>
+  <div class="tab active" onclick="switchTab('single',event)">Single URL</div>
+  <div class="tab" onclick="switchTab('bulk',event)">Bulk URL</div>
 </div>
 
 <div id="singleBox">
-  <input id="singleUrl" placeholder="Paste your URL">
+  <input id="singleUrl" placeholder="Paste your long URL here">
 </div>
 
 <div id="bulkBox" style="display:none;">
-  <textarea id="bulkUrls" rows="5" placeholder="1 link per baris"></textarea>
+  <textarea id="bulkUrls" rows="6" placeholder="1 link per baris"></textarea>
 </div>
 
-<button onclick="generate()">Create Link</button>
+<button id="btn" onclick="generate()">Create Link</button>
 
 <div class="loading" id="loading" style="display:none;">Processing...</div>
 
@@ -194,15 +236,17 @@ function switchTab(type,e){
 }
 
 async function generate(){
+  const btn=document.getElementById("btn");
   const loading=document.getElementById("loading");
   const result=document.getElementById("result");
 
+  btn.innerText="Processing...";
   loading.style.display="block";
   result.innerText="";
 
   if(mode==="single"){
     const url=document.getElementById("singleUrl").value;
-    if(!url){loading.style.display="none"; return;}
+    if(!url){reset(); return;}
 
     const res=await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
     const data=await res.json();
@@ -222,9 +266,9 @@ async function generate(){
       try{
         const res=await fetch(`/create?url=${encodeURIComponent(urls[i])}&key=${API_KEY}`);
         const data=await res.json();
-        hasil += (i+1)+". "+data.short+"\\n";
+        hasil += (i+1)+". "+data.short+"\n";
       }catch{
-        hasil += (i+1)+". ERROR\\n";
+        hasil += (i+1)+". ERROR\n";
       }
     }
 
@@ -233,7 +277,12 @@ async function generate(){
     showToast("Bulk copied");
   }
 
-  loading.style.display="none";
+  reset();
+}
+
+function reset(){
+  document.getElementById("btn").innerText="Create Link";
+  document.getElementById("loading").style.display="none";
 }
 </script>
 
