@@ -2,83 +2,100 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Slicedrive</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slicedrive</title>
 
 <style>
+:root {
+  --bg: #0b1220;
+  --card: #111827;
+  --border: #1f2937;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --primary: #3b82f6;
+}
+
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #f8fafc;
-  color: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
 /* HEADER */
 .header {
   padding: 16px;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 /* CONTAINER */
 .container {
-  padding: 16px;
-  max-width: 500px;
+  max-width: 480px;
   margin: auto;
+  padding: 16px;
 }
 
 /* CARD */
 .card {
-  background: white;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  margin-bottom: 14px;
 }
 
-/* TEXT */
-h2 {
-  margin: 0 0 10px;
-  font-size: 18px;
+/* TITLE */
+.title {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
 }
 
 /* INPUT */
 input, textarea {
   width: 100%;
-  padding: 14px;
+  padding: 13px;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  margin-top: 10px;
+  border: 1px solid var(--border);
+  background: #020617;
+  color: white;
+  margin-bottom: 10px;
   font-size: 14px;
 }
 
 /* BUTTON */
 button {
   width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: none;
+  padding: 13px;
   border-radius: 10px;
-  font-weight: bold;
+  border: none;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
 }
 
 .primary {
-  background: #2563eb;
+  background: var(--primary);
   color: white;
 }
 
 .secondary {
-  background: #e2e8f0;
+  background: #020617;
+  border: 1px solid var(--border);
+  color: var(--text);
+  margin-top: 8px;
 }
 
 /* RESULT */
 .result {
   margin-top: 10px;
-  background: #f1f5f9;
+  background: #020617;
+  border: 1px solid var(--border);
   padding: 10px;
   border-radius: 10px;
   font-size: 13px;
@@ -88,111 +105,123 @@ button {
 
 /* PROGRESS */
 .progress {
-  height: 6px;
-  background: #e2e8f0;
-  margin-top: 10px;
+  height: 4px;
+  background: #020617;
   border-radius: 10px;
   overflow: hidden;
+  margin-top: 10px;
 }
 
 .bar {
   height: 100%;
   width: 0%;
-  background: #2563eb;
+  background: var(--primary);
 }
 
-/* SMALL TEXT */
-.note {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 5px;
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  opacity: 0;
+  transition: .3s;
 }
+.toast.show { opacity: 1; }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  🚀 Slicedrive
-</div>
+<div class="header">Slicedrive</div>
 
 <div class="container">
 
 <!-- SINGLE -->
 <div class="card">
-  <h2>Generate Link</h2>
+  <div class="title">Generate Link</div>
 
   <input id="singleUrl" placeholder="https://example.com">
-  
+
   <button class="primary" onclick="genSingle()">Generate</button>
 
   <div class="result" id="singleResult"></div>
-  <div class="note">Auto copy setelah generate</div>
 </div>
 
 <!-- BULK -->
 <div class="card">
-  <h2>Bulk Generator</h2>
+  <div class="title">Bulk Generator</div>
 
   <textarea id="bulkUrls" rows="5" placeholder="1 link per baris"></textarea>
 
-  <button class="primary" onclick="genBulk()">Generate Bulk</button>
+  <button class="primary" onclick="genBulk()">Generate</button>
   <button class="secondary" onclick="copyAll()">Copy All</button>
 
-  <div class="progress">
-    <div class="bar" id="bar"></div>
-  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
 
   <div class="result" id="bulkResult"></div>
 </div>
 
 </div>
 
+<div class="toast" id="toast">Copied</div>
+
 <script>
 const API_KEY = "bebas_isi_sendiri_123";
 
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1500);
+}
+
 // SINGLE
-async function genSingle() {
+async function genSingle(){
   const url = document.getElementById("singleUrl").value;
-  if (!url) return alert("Isi link dulu");
+  if(!url) return showToast("Masukin link dulu");
 
   const res = await fetch(`/create?url=${encodeURIComponent(url)}&key=${API_KEY}`);
   const data = await res.json();
 
   navigator.clipboard.writeText(data.short);
 
-  document.getElementById("singleResult").innerText =
-    "✅ " + data.short;
+  document.getElementById("singleResult").innerText = data.short;
+  showToast("Link copied");
 }
 
 // BULK
-async function genBulk() {
+async function genBulk(){
   const raw = document.getElementById("bulkUrls").value;
-  const urls = raw.split("\n").filter(x => x.trim());
+  const urls = raw.split("\n").filter(x=>x.trim());
 
   let hasil = "";
   let done = 0;
 
-  for (let i = 0; i < urls.length; i++) {
-    try {
+  for(let i=0;i<urls.length;i++){
+    try{
       const res = await fetch(`/create?url=${encodeURIComponent(urls[i])}&key=${API_KEY}`);
       const data = await res.json();
-      hasil += (i+1) + ". " + data.short + "\n";
-    } catch {
-      hasil += (i+1) + ". ERROR\n";
+      hasil += (i+1)+". "+data.short+"\n";
+    }catch{
+      hasil += (i+1)+". ERROR\n";
     }
 
     done++;
-    document.getElementById("bar").style.width = (done/urls.length)*100 + "%";
+    document.getElementById("bar").style.width = (done/urls.length)*100+"%";
     document.getElementById("bulkResult").innerText = hasil;
   }
 }
 
 // COPY ALL
-function copyAll() {
+function copyAll(){
   const text = document.getElementById("bulkResult").innerText;
   navigator.clipboard.writeText(text);
-  alert("Semua link di-copy!");
+  showToast("Semua copied");
 }
 </script>
 
