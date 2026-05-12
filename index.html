@@ -7,76 +7,72 @@
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #f8fafc;
   margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f8fafc;
   color: #0f172a;
 }
 
-/* NAVBAR */
-.nav {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 30px;
+/* HEADER */
+.header {
+  padding: 16px;
   background: white;
   border-bottom: 1px solid #e2e8f0;
-}
-
-.logo {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-/* HERO */
-.hero {
   text-align: center;
-  padding: 50px 20px;
+  font-weight: bold;
 }
 
-.hero h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.hero p {
-  color: #64748b;
-}
-
-/* MAIN BOX */
-.main-box {
-  max-width: 700px;
+/* CONTAINER */
+.container {
+  padding: 16px;
+  max-width: 500px;
   margin: auto;
+}
+
+/* CARD */
+.card {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+/* TEXT */
+h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
 }
 
 /* INPUT */
 input, textarea {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5f5;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
   margin-top: 10px;
+  font-size: 14px;
 }
 
 /* BUTTON */
 button {
-  margin-top: 10px;
-  padding: 12px;
   width: 100%;
+  padding: 14px;
+  margin-top: 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.primary {
   background: #2563eb;
   color: white;
-  font-weight: bold;
-  cursor: pointer;
 }
 
 .secondary {
   background: #e2e8f0;
-  color: #0f172a;
 }
 
 /* RESULT */
@@ -84,9 +80,10 @@ button {
   margin-top: 10px;
   background: #f1f5f9;
   padding: 10px;
-  border-radius: 8px;
-  white-space: pre-wrap;
+  border-radius: 10px;
+  font-size: 13px;
   word-break: break-all;
+  white-space: pre-wrap;
 }
 
 /* PROGRESS */
@@ -95,6 +92,7 @@ button {
   background: #e2e8f0;
   margin-top: 10px;
   border-radius: 10px;
+  overflow: hidden;
 }
 
 .bar {
@@ -102,43 +100,51 @@ button {
   width: 0%;
   background: #2563eb;
 }
+
+/* SMALL TEXT */
+.note {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 5px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="nav">
-  <div class="logo">🚀 Slicedrive</div>
+<div class="header">
+  🚀 Slicedrive
 </div>
 
-<div class="hero">
-  <h1>Simple & Fast Shortlink Tool</h1>
-  <p>Buat shortlink .mp4 dengan cepat & gratis</p>
+<div class="container">
+
+<!-- SINGLE -->
+<div class="card">
+  <h2>Generate Link</h2>
+
+  <input id="singleUrl" placeholder="https://example.com">
+  
+  <button class="primary" onclick="genSingle()">Generate</button>
+
+  <div class="result" id="singleResult"></div>
+  <div class="note">Auto copy setelah generate</div>
 </div>
 
-<div class="main-box">
+<!-- BULK -->
+<div class="card">
+  <h2>Bulk Generator</h2>
 
-<h3>Generate Link</h3>
+  <textarea id="bulkUrls" rows="5" placeholder="1 link per baris"></textarea>
 
-<input id="singleUrl" placeholder="Masukkan link...">
-<button onclick="genSingle()">Generate</button>
+  <button class="primary" onclick="genBulk()">Generate Bulk</button>
+  <button class="secondary" onclick="copyAll()">Copy All</button>
 
-<div class="result" id="singleResult"></div>
+  <div class="progress">
+    <div class="bar" id="bar"></div>
+  </div>
 
-<hr style="margin:20px 0">
-
-<h3>Bulk Generator</h3>
-
-<textarea id="bulkUrls" rows="5" placeholder="1 link per baris"></textarea>
-
-<button onclick="genBulk()">Generate Bulk</button>
-<button class="secondary" onclick="copyAll()">Copy All</button>
-
-<div class="progress">
-  <div class="bar" id="bar"></div>
+  <div class="result" id="bulkResult"></div>
 </div>
-
-<div class="result" id="bulkResult"></div>
 
 </div>
 
@@ -156,7 +162,7 @@ async function genSingle() {
   navigator.clipboard.writeText(data.short);
 
   document.getElementById("singleResult").innerText =
-    data.short + " (copied)";
+    "✅ " + data.short;
 }
 
 // BULK
@@ -182,11 +188,11 @@ async function genBulk() {
   }
 }
 
-// COPY
+// COPY ALL
 function copyAll() {
   const text = document.getElementById("bulkResult").innerText;
   navigator.clipboard.writeText(text);
-  alert("Copied!");
+  alert("Semua link di-copy!");
 }
 </script>
 
