@@ -2,12 +2,7 @@ name = "cdn2-redirect"
 pages_build_output_dir = "public"
 compatibility_date = "2025-05-01"
 
-# D1 Database
 [[d1_databases]]
 binding = "DB"
-database_name = "slicedrivee-short"     # ← pakai yang kamu bilang sudah sesuai
+database_name = "slicedrivee-short"
 database_id = "163c3de3-fa42-4c6a-9f1f-cef8fb351bb4"
-
-# Assets configuration (ini yang sering bikin error)
-[assets]
-directory = "public"
