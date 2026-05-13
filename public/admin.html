@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shortlink - slicedrivee.site</title>
+  <title>Shortlink Admin - slicedrivee.site</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -15,7 +15,6 @@
 <body class="bg-zinc-950 text-zinc-200 min-h-screen">
   <div class="max-w-7xl mx-auto px-6 py-8">
 
-    <!-- Header -->
     <div class="flex justify-between items-center mb-12">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 bg-white rounded-2xl flex items-center justify-center text-black font-bold text-2xl">S</div>
@@ -24,7 +23,6 @@
           <p class="text-zinc-500 text-sm">cdn.slicedrivee.site</p>
         </div>
       </div>
-      <div class="text-sm text-zinc-500">Admin Dashboard</div>
     </div>
 
     <!-- Tabs -->
@@ -33,205 +31,179 @@
       <button onclick="switchTab(1)" id="tab1" class="tab-btn px-6 py-3 font-medium text-zinc-400 hover:text-zinc-200">Bulk Create</button>
     </div>
 
-    <!-- Single Create -->
+    <!-- SINGLE CREATE -->
     <div id="panel0">
-      <div class="glass border border-zinc-800 rounded-3xl p-8 mb-10">
-        <div class="flex items-center gap-3 mb-6">
-          <i class="fa-solid fa-plus text-blue-500"></i>
-          <h2 class="text-2xl font-semibold">Create New Shortlink</h2>
-        </div>
+      <div class="glass border border-zinc-800 rounded-3xl p-8">
+        <h2 class="text-2xl font-semibold mb-6">Create New Shortlink</h2>
         <div class="flex flex-col md:flex-row gap-4">
           <input id="destination" type="url" placeholder="https://your-long-url.com/..." 
                  class="flex-1 bg-zinc-900 border border-zinc-700 focus:border-blue-600 rounded-2xl px-6 py-5 outline-none text-lg">
           <button onclick="createSingle()" 
-                  class="bg-white text-black font-semibold px-10 py-5 rounded-2xl hover:bg-zinc-100 flex items-center gap-3">
-            <i class="fa-solid fa-link"></i>
-            Generate
+                  class="bg-white text-black font-semibold px-10 py-5 rounded-2xl hover:bg-zinc-100 whitespace-nowrap">
+            Generate Link
           </button>
         </div>
-        <p id="single-result" class="mt-4 text-emerald-400 font-medium"></p>
+        <p id="single-result" class="mt-4 text-emerald-400 font-medium min-h-[28px]"></p>
       </div>
     </div>
 
-    <!-- Bulk Create -->
+    <!-- BULK CREATE -->
     <div id="panel1" class="hidden">
       <div class="glass border border-zinc-800 rounded-3xl p-8">
-        <div class="flex items-center gap-3 mb-6">
-          <i class="fa-solid fa-layer-group text-blue-500"></i>
-          <h2 class="text-2xl font-semibold">Bulk Create Shortlinks</h2>
-        </div>
+        <h2 class="text-2xl font-semibold mb-6">Bulk Create Shortlinks</h2>
         <p class="text-zinc-400 mb-3">Masukkan satu link per baris</p>
-        <textarea id="bulk-input" rows="10" 
-                  class="w-full bg-zinc-900 border border-zinc-700 rounded-3xl p-6 outline-none resize-y font-mono text-sm"
+        <textarea id="bulk-input" rows="12" 
+                  class="w-full bg-zinc-900 border border-zinc-700 rounded-3xl p-6 font-mono text-sm resize-y"
                   placeholder="https://example.com/video1&#10;https://example.com/video2&#10;https://example.com/video3"></textarea>
         
         <button onclick="createBulk()" 
-                class="mt-6 bg-white text-black font-semibold px-8 py-4 rounded-2xl hover:bg-zinc-100 flex items-center gap-3">
-          <i class="fa-solid fa-bolt"></i>
-          Create All Links
+                class="mt-6 bg-white text-black font-semibold px-8 py-4 rounded-2xl hover:bg-zinc-100">
+          Create All Shortlinks
         </button>
         
-        <div id="bulk-result" class="mt-6"></div>
+        <div id="bulk-result" class="mt-6 text-sm"></div>
       </div>
     </div>
 
-    <!-- Links Table -->
+    <!-- TABLE -->
     <div class="glass border border-zinc-800 rounded-3xl overflow-hidden mt-10">
       <div class="px-8 py-6 border-b border-zinc-800 flex justify-between items-center">
         <h2 class="text-xl font-semibold">All Shortlinks</h2>
-        <span id="count" class="text-zinc-400 text-sm"></span>
+        <span id="count" class="text-zinc-400"></span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-zinc-800 text-zinc-400 text-sm">
-              <th class="text-left pl-8 py-5 font-medium">SHORTLINK</th>
-              <th class="text-left py-5 font-medium">DESTINATION</th>
-              <th class="text-right pr-8 py-5 font-medium">ACTION</th>
+            <tr class="border-b border-zinc-800 text-xs uppercase text-zinc-400">
+              <th class="text-left pl-8 py-5">Shortlink</th>
+              <th class="text-left py-5">Destination</th>
+              <th class="text-right pr-8 py-5">Action</th>
             </tr>
           </thead>
-          <tbody id="linkList" class="divide-y divide-zinc-800 text-sm"></tbody>
+          <tbody id="linkList" class="divide-y divide-zinc-800"></tbody>
         </table>
       </div>
     </div>
   </div>
 
   <script>
-    let currentTab = 0;
-
-    function switchTab(tab) {
-      currentTab = tab;
-      document.getElementById('panel0').classList.toggle('hidden', tab !== 0);
-      document.getElementById('panel1').classList.toggle('hidden', tab !== 1);
+    function switchTab(n) {
+      document.getElementById('panel0').classList.toggle('hidden', n !== 0);
+      document.getElementById('panel1').classList.toggle('hidden', n !== 1);
       
       document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-        btn.classList.toggle('active', i === tab);
-        btn.classList.toggle('text-white', i === tab);
-        btn.classList.toggle('border-b-2', i === tab);
-        btn.classList.toggle('border-white', i === tab);
-        btn.classList.toggle('text-zinc-400', i !== tab);
+        btn.classList.toggle('active', i === n);
+        btn.classList.toggle('border-b-2', i === n);
+        btn.classList.toggle('border-white', i === n);
+        btn.classList.toggle('text-white', i === n);
+        btn.classList.toggle('text-zinc-400', i !== n);
       });
-    }
-
-    // Single Create
-    async function createSingle() {
-      const dest = document.getElementById('destination').value.trim();
-      if (!dest) return alert("Masukkan link tujuan!");
-
-      const slug = generateSlug();
-      await processCreate(slug, dest, 'single-result');
-    }
-
-    // Bulk Create
-    async function createBulk() {
-      const input = document.getElementById('bulk-input').value.trim();
-      if (!input) return alert("Masukkan minimal 1 link");
-
-      const urls = input.split('\n').map(u => u.trim()).filter(u => u);
-      const resultDiv = document.getElementById('bulk-result');
-      resultDiv.innerHTML = `<p class="text-blue-400">Sedang memproses ${urls.length} link...</p>`;
-
-      let successCount = 0;
-      let html = '<div class="mt-4 space-y-2 max-h-96 overflow-y-auto">';
-
-      for (const url of urls) {
-        const slug = generateSlug();
-        const res = await fetch(`${window.location.origin}/api/create`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slug, destination: url })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          successCount++;
-          html += `<div class="text-emerald-400 text-sm">✅ ${slug}.mp4 → ${url}</div>`;
-        } else {
-          html += `<div class="text-red-400 text-sm">❌ Gagal: ${url}</div>`;
-        }
-      }
-
-      html += '</div>';
-      resultDiv.innerHTML = `<p class="text-emerald-400 font-medium">${successCount} dari ${urls.length} berhasil dibuat</p>` + html;
-      
-      loadLinks();
     }
 
     function generateSlug() {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       let slug = "";
-      for (let i = 0; i < 7; i++) {
-        slug += chars[Math.floor(Math.random() * chars.length)];
-      }
+      for (let i = 0; i < 7; i++) slug += chars[Math.floor(Math.random() * chars.length)];
       slug += Math.floor(Math.random() * 10).toString();
       return slug;
     }
 
-    async function processCreate(slug, destination, resultId) {
-      const res = await fetch(`${window.location.origin}/api/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, destination })
-      });
+    async function createSingle() {
+      const dest = document.getElementById('destination').value.trim();
+      if (!dest) return alert("Masukkan link tujuan!");
 
+      const slug = generateSlug();
+      const result = document.getElementById('single-result');
+      result.textContent = "Membuat shortlink...";
+
+      const res = await fetch('/api/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, destination: dest })
+      });
       const data = await res.json();
-      const el = document.getElementById(resultId);
-      
+
       if (data.success) {
-        el.innerHTML = `✅ Berhasil → <span class="font-mono text-blue-400">https://cdn.slicedrivee.site/${slug}.mp4</span>`;
+        result.innerHTML = `✅ Berhasil → https://cdn.slicedrivee.site/<b>${slug}.mp4</b>`;
+        document.getElementById('destination').value = '';
         loadLinks();
       } else {
-        el.innerHTML = `<span class="text-red-400">${data.error || "Gagal"}</span>`;
+        result.innerHTML = `<span class="text-red-400">${data.error || 'Gagal'}</span>`;
       }
     }
 
-    // Copy, Delete, Load Links (sama seperti sebelumnya)
-    function copyLink(text) {
-      navigator.clipboard.writeText(text);
-      const notif = document.createElement('div');
-      notif.textContent = 'Copied to clipboard!';
-      notif.className = 'fixed bottom-6 right-6 bg-emerald-600 text-white px-6 py-3 rounded-2xl shadow-2xl text-sm';
-      document.body.appendChild(notif);
-      setTimeout(() => notif.remove(), 1800);
-    }
+    async function createBulk() {
+      const input = document.getElementById('bulk-input').value.trim();
+      if (!input) return alert("Masukkan minimal 1 link!");
 
-    async function deleteLink(slug) {
-      if (!confirm(`Hapus ${slug}.mp4?`)) return;
-      await fetch(`${window.location.origin}/api/delete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug })
-      });
+      const urls = input.split('\n').map(u => u.trim()).filter(u => u);
+      const resultDiv = document.getElementById('bulk-result');
+      resultDiv.innerHTML = `<p class="text-blue-400">Sedang memproses ${urls.length} link...</p>`;
+
+      let success = 0;
+      let logHTML = '<div class="mt-4 max-h-96 overflow-y-auto space-y-1">';
+
+      for (const url of urls) {
+        const slug = generateSlug();
+        try {
+          const res = await fetch('/api/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug, destination: url })
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            success++;
+            logHTML += `<div class="text-emerald-400">✅ ${slug}.mp4</div>`;
+          } else {
+            logHTML += `<div class="text-red-400">❌ ${url}</div>`;
+          }
+        } catch(e) {
+          logHTML += `<div class="text-red-400">❌ ${url}</div>`;
+        }
+      }
+
+      logHTML += '</div>';
+      resultDiv.innerHTML = `<p class="font-medium">${success} dari ${urls.length} berhasil dibuat</p>` + logHTML;
       loadLinks();
     }
 
     async function loadLinks() {
-      const res = await fetch(`${window.location.origin}/api/list`);
+      const res = await fetch('/api/list');
       const links = await res.json();
-      document.getElementById('count').textContent = `${links.length} total`;
+      document.getElementById('count').textContent = `${links.length} links`;
 
       let html = '';
-      links.forEach(link => {
-        const full = `https://cdn.slicedrivee.site/${link.slug}.mp4`;
+      links.forEach(l => {
+        const full = `https://cdn.slicedrivee.site/${l.slug}.mp4`;
         html += `
-          <tr class="hover:bg-zinc-900/50 transition-colors">
-            <td class="pl-8 py-5 font-mono text-blue-400">${link.slug}.mp4</td>
-            <td class="py-5 text-zinc-300 truncate max-w-xl">
-              <a href="\( {link.destination}" target="_blank" class="hover:underline"> \){link.destination}</a>
-            </td>
+          <tr class="hover:bg-zinc-900 transition-colors">
+            <td class="pl-8 py-5 font-mono text-blue-400">${l.slug}.mp4</td>
+            <td class="py-5 text-zinc-300 truncate"><a href="\( {l.destination}" target="_blank" class="hover:underline"> \){l.destination}</a></td>
             <td class="pr-8 py-5 text-right">
-              <button onclick="copyLink('${full}')" class="text-zinc-400 hover:text-white mr-5">
-                <i class="fa-solid fa-copy"></i>
-              </button>
-              <button onclick="deleteLink('${link.slug}')" class="text-red-400 hover:text-red-500">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+              <button onclick="copyToClipboard('${full}')" class="mr-6 text-zinc-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
+              <button onclick="deleteLink('${l.slug}')" class="text-red-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>`;
       });
 
-      document.getElementById('linkList').innerHTML = html || 
-        `<tr><td colspan="3" class="py-16 text-center text-zinc-500">Belum ada shortlink</td></tr>`;
+      document.getElementById('linkList').innerHTML = html || `<tr><td colspan="3" class="py-20 text-center text-zinc-500">Belum ada shortlink</td></tr>`;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert('✅ Link berhasil dicopy!');
+    }
+
+    async function deleteLink(slug) {
+      if (!confirm(`Hapus ${slug}.mp4?`)) return;
+      await fetch('/api/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({slug})
+      });
+      loadLinks();
     }
 
     window.onload = () => {
