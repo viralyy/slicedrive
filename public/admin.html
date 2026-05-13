@@ -124,7 +124,7 @@
       const data = await res.json();
 
       if (data.success) {
-        result.innerHTML = `✅ Berhasil → https://cdn.slicedrivee.site/<b>${slug}.mp4</b>`;
+        result.innerHTML = `Berhasil → https://cdn.slicedrivee.site/<b>${slug}.mp4</b>`;
         document.getElementById('destination').value = '';
         loadLinks();
       } else {
@@ -193,7 +193,7 @@
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      alert('✅ Link berhasil dicopy!');
+      alert('Link berhasil dicopy!');
     }
 
     async function deleteLink(slug) {
