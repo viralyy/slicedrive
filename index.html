@@ -1,35 +1,181 @@
-<!DOCTYPE html>
-<html lang="id">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shortlink - slicedrivee.site</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-  </style>
-</head>
-<body class="bg-zinc-950 text-zinc-200 min-h-screen flex items-center justify-center">
-  <div class="max-w-2xl mx-auto text-center px-6">
-    <div class="mb-8 flex justify-center">
-      <div class="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-black font-bold text-5xl">S</div>
-    </div>
-    <h1 class="text-6xl font-semibold tracking-tighter mb-4">Shortlink</h1>
-    <p class="text-2xl text-zinc-400 mb-12">Buat link pendek profesional dengan domain custom</p>
-    
-    <div class="inline-flex flex-col sm:flex-row gap-4">
-      <a href="/admin" 
-         class="bg-white text-black font-semibold px-10 py-5 rounded-3xl hover:bg-zinc-100 transition-all flex items-center gap-3 text-lg">
-        <i class="fa-solid fa-gauge-high"></i>
-        Buka Admin Dashboard
-      </a>
-    </div>
+<meta charset="UTF-8">
+<title>Slicedrivee CDN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <div class="mt-16 text-zinc-500">
-      cdn.slicedrivee.site/<span class="font-mono text-emerald-400">XXXXXXXX.mp4</span>
-    </div>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:radial-gradient(circle at top,#242443,#08080c 60%);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+}
+.card{
+  width:100%;
+  max-width:560px;
+  background:rgba(18,18,28,.94);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:28px;
+  box-shadow:0 25px 70px rgba(0,0,0,.45);
+}
+.badge{
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(88,101,242,.18);
+  color:#9aa5ff;
+  font-size:13px;
+  margin-bottom:16px;
+}
+h1{font-size:34px;margin-bottom:8px}
+p{color:#aaa;margin-bottom:24px;line-height:1.5}
+label{
+  display:block;
+  font-size:13px;
+  color:#bbb;
+  margin:14px 0 7px;
+}
+input{
+  width:100%;
+  padding:15px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:15px;
+  background:#0d0d14;
+  color:white;
+  outline:none;
+  font-size:15px;
+}
+input:focus{border-color:#5865f2}
+button{
+  width:100%;
+  margin-top:18px;
+  padding:15px;
+  border:0;
+  border-radius:15px;
+  background:#5865f2;
+  color:white;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+}
+button:disabled{opacity:.6;cursor:not-allowed}
+.result{
+  margin-top:20px;
+  display:grid;
+  gap:10px;
+}
+.link{
+  background:#0b0b11;
+  border:1px solid rgba(255,255,255,.07);
+  padding:13px;
+  border-radius:14px;
+  word-break:break-all;
+}
+.link a{
+  color:#91a0ff;
+  text-decoration:none;
+}
+.status{
+  margin-top:16px;
+  padding:13px;
+  border-radius:14px;
+  background:#08080d;
+  color:#aaa;
+  white-space:pre-wrap;
+  font-size:13px;
+}
+.footer{
+  margin-top:18px;
+  text-align:center;
+  color:#777;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+<main class="card">
+  <div class="badge">Slicedrivee CDN</div>
+
+  <h1>Create Shortlink</h1>
+
+  <p>
+    Generate shortlink otomatis dengan format <b>.mp4</b>
+    dan ID selalu berakhir angka <b>1</b>.
+  </p>
+
+  <label>Target URL</label>
+  <input id="target" placeholder="https://example.com">
+
+  <label>Custom ID optional</label>
+  <input id="custom" placeholder="contoh: abcde432">
+
+  <button id="btn">Create Shortlink</button>
+
+  <div class="result" id="links"></div>
+
+  <div class="status" id="status">Ready.</div>
+
+  <div class="footer">
+    powered by slicedrivee.site
   </div>
+</main>
+
+<script>
+const btn = document.getElementById("btn");
+const statusBox = document.getElementById("status");
+const linksBox = document.getElementById("links");
+
+btn.addEventListener("click", async () => {
+  const target = document.getElementById("target").value.trim();
+  const custom = document.getElementById("custom").value.trim();
+
+  linksBox.innerHTML = "";
+  statusBox.textContent = "Creating...";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch("/api/create", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        target,
+        custom
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      statusBox.textContent = "Error: " + data.error;
+      return;
+    }
+
+    statusBox.textContent = "Success! ID: " + data.id;
+
+    data.links.forEach(link => {
+      const div = document.createElement("div");
+      div.className = "link";
+      div.innerHTML = '<a href="' + link + '" target="_blank">' + link + '</a>';
+      linksBox.appendChild(div);
+    });
+
+  } catch (err) {
+    statusBox.textContent = "Error: " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
 </body>
 </html>
