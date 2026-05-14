@@ -3,88 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slicedrivee Shortener</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
-<style>
-    .tab-active { @apply bg-blue-600 text-white; }
-</style>
+<title>Slicedrivee - Single Shortlink</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body>
 
-<header class="bg-gray-900 text-white py-4 text-center text-xl font-semibold">
-    slicedrivee.site
+<header>
+  <h1>Slicedrivee Shortlink</h1>
+  <p>Masukkan URL tunggal untuk membuat shortlink cepat</p>
 </header>
 
-<main class="flex-1 container mx-auto p-6">
-    <h1 class="text-center text-3xl font-bold text-blue-600 mb-6">Slicedrivee CDN Shortener</h1>
-    
-    <div class="flex justify-center space-x-4 mb-6">
-        <button id="tabSingle" class="px-4 py-2 rounded bg-blue-600 text-white" onclick="switchTab('single')">Single URL</button>
-        <button id="tabBulk" class="px-4 py-2 rounded bg-gray-300" onclick="switchTab('bulk')">Bulk URL</button>
-    </div>
+<div class="container">
+  <select id="domain">
+    <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+    <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
+    <option value="media.slicedrivee.site">media.slicedrivee.site</option>
+  </select>
 
-    <!-- Single URL -->
-    <div id="single" class="bg-white p-6 rounded-lg shadow-md">
-        <input type="text" id="singleUrl" placeholder="Paste your long URL" class="w-full p-3 rounded border border-gray-300 mb-4">
-        <input type="text" id="singleSlug" placeholder="Custom alias (optional)" class="w-full p-3 rounded border border-gray-300 mb-4">
-        <button onclick="createSingle()" class="w-full py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Create Shortlink</button>
-        <p id="singleResult" class="mt-4 text-center font-medium"></p>
-    </div>
+  <input type="text" id="url" placeholder="Masukkan URL panjang disini">
+  <input type="text" id="slug" placeholder="Custom alias (opsional)">
+  <button onclick="createShortlink()">Create Link</button>
 
-    <!-- Bulk URL -->
-    <div id="bulk" class="bg-white p-6 rounded-lg shadow-md hidden">
-        <textarea id="bulkUrls" rows="8" placeholder="Paste multiple URLs (one per line)" class="w-full p-3 rounded border border-gray-300 mb-4"></textarea>
-        <button onclick="createBulk()" class="w-full py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Create Bulk Links</button>
-        <div id="bulkResult" class="mt-4 text-center font-medium"></div>
-    </div>
-</main>
+  <div class="result" id="result"></div>
+</div>
 
-<footer class="bg-gray-900 text-white py-4 text-center mt-auto">
-    slicedrivee.site
+<footer>
+  © 2026 slicedrivee.site
 </footer>
 
 <script>
-function switchTab(tab) {
-    document.getElementById('single').classList.add('hidden');
-    document.getElementById('bulk').classList.add('hidden');
-    document.getElementById('tabSingle').classList.remove('bg-blue-600','text-white');
-    document.getElementById('tabBulk').classList.remove('bg-blue-600','text-white');
+async function createShortlink() {
+  const url = document.getElementById('url').value.trim();
+  const slug = document.getElementById('slug').value.trim();
+  const domain = document.getElementById('domain').value;
 
-    if(tab==='single') {
-        document.getElementById('single').classList.remove('hidden');
-        document.getElementById('tabSingle').classList.add('bg-blue-600','text-white');
-    } else {
-        document.getElementById('bulk').classList.remove('hidden');
-        document.getElementById('tabBulk').classList.add('bg-blue-600','text-white');
-    }
-}
+  if(!url) return alert('Masukkan URL dulu!');
 
-async function createSingle() {
-    const url = document.getElementById('singleUrl').value;
-    const slug = document.getElementById('singleSlug').value;
-    if(!url) return alert('Enter a URL!');
-    const res = await fetch('https://slicedrivee.pengecrotan45.workers.dev', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({target: url, slug: slug})
-    });
-    const data = await res.json();
-    document.getElementById('singleResult').innerText = data.ok ? `https://cdn.slicedrivee.site/${data.slug}` : data.error;
-}
+  const res = await fetch('https://slicedrivee.pengecrotan45.workers.dev', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({target:url, slug, domain})
+  });
 
-async function createBulk() {
-    const urls = document.getElementById('bulkUrls').value.split('\n').filter(u => u.trim() !== '');
-    const results = [];
-    for(let u of urls) {
-        const res = await fetch('https://slicedrivee.pengecrotan45.workers.dev', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({target: u})
-        });
-        const data = await res.json();
-        results.push(data.ok ? `https://cdn.slicedrivee.site/${data.slug}` : data.error);
-    }
-    document.getElementById('bulkResult').innerHTML = results.join('<br>');
+  const data = await res.json();
+  document.getElementById('result').innerText = data.ok ? `Shortlink: ${data.shortlink}` : `Error: ${data.error}`;
 }
 </script>
 
