@@ -2,73 +2,137 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ShortDrive Link Creator</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#121212;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;}
-.container{background:#1e1e1e;padding:30px;border-radius:12px;width:100%;max-width:450px;box-shadow:0 0 15px rgba(0,0,0,0.5);}
-h1{margin:0 0 20px;text-align:center;font-size:22px;}
-.tab{display:flex;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid #333;}
-.tab button{flex:1;padding:10px 0;background:#2c2c2c;border:none;color:#aaa;font-weight:bold;cursor:pointer;transition:.2s;}
-.tab button.active{background:#3a86ff;color:#fff;}
-label{display:block;margin-bottom:5px;margin-top:10px;font-size:14px;color:#ccc;}
-input, select, textarea{width:100%;padding:10px;border-radius:6px;border:none;margin-bottom:10px;background:#2c2c2c;color:#fff;outline:none;font-size:14px;}
-button#create{width:100%;padding:12px;background:#3a86ff;border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer;transition:.2s;}
-button#create:hover{background:#1f65d1;}
-#result{margin-top:15px;font-size:14px;line-height:1.5;}
-.error{color:#ff5a5f;}
-.success{color:#4caf50;word-break:break-word;}
+  body {
+    margin:0; font-family: 'Segoe UI', sans-serif; background:#121212; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh;
+  }
+  .container { background:#1e1e1e; padding:30px; border-radius:12px; width:90%; max-width:480px; box-shadow:0 0 20px rgba(0,0,0,0.5);}
+  h1 { text-align:center; margin-bottom:20px; font-size:1.6rem;}
+  .tabs { display:flex; margin-bottom:20px; }
+  .tab { flex:1; padding:10px; text-align:center; cursor:pointer; border-radius:8px; background:#2a2a2a; margin-right:8px; user-select:none;}
+  .tab.active { background:#3a80f7; color:#fff; font-weight:600;}
+  .tab:last-child { margin-right:0;}
+  label { display:block; margin:12px 0 4px; font-size:0.9rem;}
+  input, select, textarea { width:100%; padding:10px; border-radius:8px; border:none; background:#2a2a2a; color:#fff; font-size:1rem; }
+  textarea { resize:none; }
+  button { width:100%; padding:12px; margin-top:15px; border:none; border-radius:8px; background:#3a80f7; color:#fff; font-size:1rem; cursor:pointer;}
+  button:disabled { background:#555; cursor:not-allowed;}
+  .error { margin-top:10px; color:#f54e42; font-size:0.9rem;}
+  .success { margin-top:10px; color:#4ef575; font-size:0.9rem; word-break:break-word;}
 </style>
 </head>
 <body>
+
 <div class="container">
-<h1>ShortDrive Link Creator</h1>
-<div class="tab">
-<button id="singleTab" class="active">Single URL</button>
-<button id="bulkTab">Bulk URL</button>
-</div>
-<div id="formArea">
-<label for="domain">Select Domain</label>
-<select id="domain">
-<option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-</select>
-<label for="alias">Custom Alias (Optional)</label>
-<input type="text" id="alias" placeholder="my-brand">
-<label for="url">Paste Your Long URL</label>
-<textarea id="url" rows="2" placeholder="https://example.com"></textarea>
-<button id="create">Create Link</button>
-<div id="result"></div>
-</div>
+  <h1>ShortDrive Link Creator</h1>
+
+  <div class="tabs">
+    <div class="tab active" id="singleTab">Single URL</div>
+    <div class="tab" id="bulkTab">Bulk URL</div>
+  </div>
+
+  <div id="singleForm">
+    <label>Select Domain</label>
+    <select id="domainSelect">
+      <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+    </select>
+
+    <label>Custom Alias (Optional)</label>
+    <input type="text" id="alias" placeholder="my-brand">
+
+    <label>Paste Your Long URL</label>
+    <input type="text" id="longUrl" placeholder="https://example.com">
+
+    <button id="createSingle">Create Link</button>
+    <div class="error" id="singleError"></div>
+    <div class="success" id="singleSuccess"></div>
+  </div>
+
+  <div id="bulkForm" style="display:none;">
+    <label>Select Domain</label>
+    <select id="domainSelectBulk">
+      <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+    </select>
+
+    <label>Paste URLs (one per line)</label>
+    <textarea id="bulkUrls" rows="8" placeholder="https://example1.com&#10;https://example2.com"></textarea>
+
+    <button id="createBulk">Create Bulk Links</button>
+    <div class="error" id="bulkError"></div>
+    <div class="success" id="bulkSuccess"></div>
+  </div>
 </div>
 
 <script>
-const singleTab = document.getElementById("singleTab");
-const bulkTab = document.getElementById("bulkTab");
-const urlInput = document.getElementById("url");
-const createBtn = document.getElementById("create");
-const resultDiv = document.getElementById("result");
+const singleTab = document.getElementById('singleTab');
+const bulkTab = document.getElementById('bulkTab');
+const singleForm = document.getElementById('singleForm');
+const bulkForm = document.getElementById('bulkForm');
 
-singleTab.addEventListener("click",()=>{singleTab.classList.add("active");bulkTab.classList.remove("active");urlInput.rows=2;});
-bulkTab.addEventListener("click",()=>{bulkTab.classList.add("active");singleTab.classList.remove("active");urlInput.rows=6;});
+singleTab.onclick = () => {
+  singleTab.classList.add('active');
+  bulkTab.classList.remove('active');
+  singleForm.style.display='block';
+  bulkForm.style.display='none';
+}
+bulkTab.onclick = () => {
+  bulkTab.classList.add('active');
+  singleTab.classList.remove('active');
+  bulkForm.style.display='block';
+  singleForm.style.display='none';
+}
 
-createBtn.addEventListener("click",async()=>{
-resultDiv.textContent="";
-const domain=document.getElementById("domain").value;
-const alias=document.getElementById("alias").value.trim();
-const urls=urlInput.value.trim().split("\n").filter(u=>u);
-if(urls.length===0){resultDiv.innerHTML="<span class='error'>Please enter URL(s)</span>";return;}
-createBtn.disabled=true;
-createBtn.textContent="Processing...";
-try{
-const res=await fetch("https://slicedrive.pengecrotan45.workers.dev/api/create",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({domain,alias,urls:bulkTab.classList.contains("active")?urls:urls[0]})});
-const data=await res.json();
-if(data.ok){
-const links=data.shortUrls.map(l=>`<a href='${l}' target='_blank'>${l}</a>`).join("<br>");
-resultDiv.innerHTML=`<span class='success'>Shortlink created:<br>${links}</span>`;
-}else{resultDiv.innerHTML=`<span class='error'>${data.error}</span>`;}
-}catch(err){resultDiv.innerHTML=`<span class='error'>Network or Worker error</span>`;}
-createBtn.disabled=false;
-createBtn.textContent="Create Link";
-});
+// Single URL
+document.getElementById('createSingle').onclick = async () => {
+  const domain = document.getElementById('domainSelect').value;
+  const alias = document.getElementById('alias').value;
+  const url = document.getElementById('longUrl').value.trim();
+  const errorEl = document.getElementById('singleError');
+  const successEl = document.getElementById('singleSuccess');
+  errorEl.innerText=''; successEl.innerText='';
+
+  if(!url){ errorEl.innerText='Please enter a URL'; return; }
+  
+  try{
+    const res = await fetch('https://slicedrive.pengecrotan45.workers.dev/', {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({url,alias,domain})
+    });
+    if(!res.ok) throw new Error('Worker error');
+    const data = await res.json();
+    successEl.innerText = `Shortlink: ${data.shortUrl}`;
+  }catch(e){
+    errorEl.innerText='Network or Worker error';
+  }
+}
+
+// Bulk URL
+document.getElementById('createBulk').onclick = async () => {
+  const domain = document.getElementById('domainSelectBulk').value;
+  const urls = document.getElementById('bulkUrls').value.trim().split('\n').filter(u=>u);
+  const errorEl = document.getElementById('bulkError');
+  const successEl = document.getElementById('bulkSuccess');
+  errorEl.innerText=''; successEl.innerText='';
+
+  if(urls.length===0){ errorEl.innerText='Please enter at least one URL'; return; }
+
+  try{
+    const res = await fetch('https://slicedrive.pengecrotan45.workers.dev/bulk', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({urls,domain})
+    });
+    if(!res.ok) throw new Error('Worker error');
+    const data = await res.json();
+    successEl.innerText = 'Shortlinks:\n' + data.results.join('\n');
+  }catch(e){
+    errorEl.innerText='Network or Worker error';
+  }
+}
 </script>
+
 </body>
 </html>
