@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Slicedrivee CDN Debug</title>
+<title>Slicedrivee CDN</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow-y:auto; -webkit-overflow-scrolling:touch; font-family:'Inter',Arial,sans-serif; background:radial-gradient(circle at 20% 10%,#5859f2 35%,transparent 30%),radial-gradient(circle at 80% 20%,#00ffc8 14%,transparent 28%),#07070b; display:flex; justify-content:center; align-items:flex-start; padding:20px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:'Inter',Arial,sans-serif;
+background:radial-gradient(circle at 20% 10%,#5859f2 35%,transparent 30%),radial-gradient(circle at 80% 20%,#00ffc8 14%,transparent 28%),#07070b;
+display:flex;justify-content:center;align-items:flex-start;padding:20px;}
 .card{width:100%;max-width:580px;background:rgba(18,18,28,.95);border-radius:28px;border:1px solid rgba(255,255,255,.08);padding:32px;box-shadow:0 35px 90px rgba(0,0,0,.45);animation:fadeUp .7s ease;}
 h1{font-size:clamp(32px,6vw,72px);color:white;margin-bottom:10px;text-align:center;}
 p{color:#aaa;margin-bottom:25px;text-align:center;line-height:1.5;}
@@ -29,15 +31,14 @@ button.btn:hover{opacity:.95;}
 #bulkCopyAll{margin-top:6px;margin-bottom:6px;background:#5865f2;color:white;padding:10px 12px;border-radius:12px;border:none;cursor:pointer;transition:.2s;}
 #bulkCopyAll:hover{opacity:.9;}
 .footer{margin-top:18px;text-align:center;color:#777;font-size:12px;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 .hidden{display:none;}
 </style>
 </head>
 <body>
-
 <div class="card">
-<h1>Slicedrivee CDN Debug</h1>
-<p>Generate shortlinks with <b>.mp4</b> style. Choose subdomain, single or bulk, animated UI. Debug ready: alert + console log.</p>
+<h1>Slicedrivee CDN</h1>
+<p>Generate shortlinks with <b>.mp4</b> style. Choose subdomain, single or bulk, animated UI. Debug ready.</p>
 
 <div class="tabs">
   <button class="tab active" onclick="setMode('single')">Short 1 Link</button>
@@ -53,13 +54,11 @@ button.btn:hover{opacity:.95;}
     </select>
   </label>
 
-  <!-- Single -->
   <div id="singleBox">
     <label>Target URL<input id="target" placeholder="https://example.com"></label>
     <label>Custom Slug optional<input id="custom" placeholder="abcde432"></label>
   </div>
 
-  <!-- Bulk -->
   <div id="bulkBox" class="hidden">
     <label>Bulk URLs (one per line)
       <textarea id="bulk" placeholder="https://example.com&#10;https://google.com"></textarea>
@@ -76,7 +75,7 @@ button.btn:hover{opacity:.95;}
 
 <script>
 let mode='single';
-const API='https://slicedrivee.site';
+const API='https://slicedrivee.site'; // HARUS domain utama, route Worker aktif
 
 function setMode(m){
   mode=m;
@@ -88,18 +87,18 @@ function setMode(m){
 }
 
 async function createOne(target,custom=''){
-  try {
-    const res = await fetch(API,{
+  try{
+    const res=await fetch(API,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({target,custom,domain:document.getElementById('domain').value})
     });
-    const data = await res.json();
-    console.log("Worker response:", data);
+    const data=await res.json();
+    console.log("Worker response:",data);
     return data;
-  } catch(e){
+  }catch(e){
     alert("Fetch failed: "+e.message);
-    console.error("Fetch error:", e);
+    console.error("Fetch error:",e);
     return null;
   }
 }
@@ -135,7 +134,7 @@ document.getElementById('btn').onclick=async()=>{
       document.getElementById('bulkCopyAll').onclick=()=>{navigator.clipboard.writeText(links.join('\n'));}
       alert(`Bulk done. ${links.length}/${urls.length} created`);
     }
-  }catch(e){alert('Error: '+e.message); console.error(e);}
+  }catch(e){alert('Error: '+e.message);console.error(e);}
   finally{btn.disabled=false;}
 }
 </script>
