@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShortDrive</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#121212;color:#fff;display:flex;justify-content:center;align-items:flex-start;padding-top:50px;}
+.container{background:#1e1e1e;padding:30px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.5);width:100%;max-width:480px;}
+h1{text-align:center;margin-bottom:20px;font-size:26px;}
+.toggle{display:flex;justify-content:center;margin-bottom:20px;}
+.toggle button{flex:1;margin:0 5px;padding:10px 0;background:#2a2a2a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;transition:0.2s;}
+.toggle button.active{background:#4a90e2;}
+.form-group{margin-bottom:15px;}
+label{display:block;margin-bottom:5px;font-size:14px;color:#ccc;}
+input, select{width:100%;padding:10px;border-radius:6px;border:none;background:#2a2d3f;color:#fff;font-size:14px;}
+button#create{width:100%;padding:12px;background:#4a90e2;color:#fff;border:none;border-radius:6px;font-size:16px;cursor:pointer;font-weight:bold;margin-top:10px;transition:0.2s;}
+button#create:hover{background:#357ABD;}
+#message{margin-top:15px;text-align:center;padding:10px;border-radius:6px;display:none;}
+#message.success{background:#2a5d2f;color:#b6ffb6;}
+#message.error{background:#5d2f2f;color:#ffb6b6;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>ShortDrive Link Creator</h1>
+
+<div class="toggle">
+<button id="singleBtn" class="active">Single URL</button>
+<button id="bulkBtn">Bulk URL</button>
+</div>
+
+<div class="form-group">
+<label for="domain">Select Domain</label>
+<select id="domain">
+<option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+<option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
+<option value="media.slicedrivee.site">media.slicedrivee.site</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="alias">Custom Alias (Optional)</label>
+<input type="text" id="alias" placeholder="my-brand">
+</div>
+
+<div class="form-group">
+<label for="longUrl">Paste Your Long URL</label>
+<input type="url" id="longUrl" placeholder="https://...">
+</div>
+
+<button id="create">Create Link</button>
+<div id="message"></div>
+</div>
+
+<script>
+const singleBtn = document.getElementById('singleBtn');
+const bulkBtn = document.getElementById('bulkBtn');
+const createBtn = document.getElementById('create');
+const message = document.getElementById('message');
+
+singleBtn.addEventListener('click',()=>{
+singleBtn.classList.add('active');bulkBtn.classList.remove('active');});
+bulkBtn.addEventListener('click',()=>{
+bulkBtn.classList.add('active');singleBtn.classList.remove('active');});
+
+createBtn.addEventListener('click',async()=>{
+const domain = document.getElementById('domain').value;
+const alias = document.getElementById('alias').value;
+const longUrl = document.getElementById('longUrl').value;
+if(!longUrl){message.style.display='block';message.className='error';message.textContent='Please enter a URL!';return;}
+try{
+const res = await fetch(`/api/create?domain=${domain}&alias=${alias}&url=${encodeURIComponent(longUrl)}`);
+const data = await res.json();
+if(data.ok){
+message.style.display='block';
+message.className='success';
+message.innerHTML=`Success! <a href="${data.shortUrl}" target="_blank" style="color:#fff;text-decoration:underline;">${data.shortUrl}</a>`;
+}else{
+message.style.display='block';
+message.className='error';
+message.textContent=`Error: ${data.error}`;
+}
+}catch(e){
+message.style.display='block';
+message.className='error';
+message.textContent='Network error!';
+}
+});
+</script>
+</body>
+</html>
