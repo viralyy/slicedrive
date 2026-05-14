@@ -3,60 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slicedrivee CDN</title>
+<title>Slicedrivee Shortener</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
 <style>
-  body { font-family: sans-serif; background:#1c1c2b; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; }
-  .container { max-width:400px; width:90%; background:#2c2c3b; padding:20px; border-radius:12px; }
-  input, select, button { width:100%; margin:8px 0; padding:10px; border-radius:8px; border:none; }
-  button { background: linear-gradient(90deg, #667eea, #764ba2); color:#fff; cursor:pointer; font-weight:bold; }
-  button:hover { opacity:0.9; }
-  .error { color:#ff6b6b; margin-top:8px; font-size:0.9em; }
-  textarea { min-height:100px; }
+    .tab-active { @apply bg-blue-600 text-white; }
 </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
-<div class="container">
-  <h2>Slicedrivee CDN</h2>
-  <select id="subdomain">
-    <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-  </select>
-  <input type="url" id="target" placeholder="Target URL (https://example.com)">
-  <input type="text" id="slug" placeholder="Custom slug (optional)">
-  <button id="create">Create Shortlink</button>
-  <div class="error" id="error"></div>
-  <textarea id="output" placeholder="Generated shortlinks..." readonly></textarea>
-</div>
+<header class="bg-gray-900 text-white py-4 text-center text-xl font-semibold">
+    slicedrivee.site
+</header>
+
+<main class="flex-1 container mx-auto p-6">
+    <h1 class="text-center text-3xl font-bold text-blue-600 mb-6">Slicedrivee CDN Shortener</h1>
+    
+    <div class="flex justify-center space-x-4 mb-6">
+        <button id="tabSingle" class="px-4 py-2 rounded bg-blue-600 text-white" onclick="switchTab('single')">Single URL</button>
+        <button id="tabBulk" class="px-4 py-2 rounded bg-gray-300" onclick="switchTab('bulk')">Bulk URL</button>
+    </div>
+
+    <!-- Single URL -->
+    <div id="single" class="bg-white p-6 rounded-lg shadow-md">
+        <input type="text" id="singleUrl" placeholder="Paste your long URL" class="w-full p-3 rounded border border-gray-300 mb-4">
+        <input type="text" id="singleSlug" placeholder="Custom alias (optional)" class="w-full p-3 rounded border border-gray-300 mb-4">
+        <button onclick="createSingle()" class="w-full py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Create Shortlink</button>
+        <p id="singleResult" class="mt-4 text-center font-medium"></p>
+    </div>
+
+    <!-- Bulk URL -->
+    <div id="bulk" class="bg-white p-6 rounded-lg shadow-md hidden">
+        <textarea id="bulkUrls" rows="8" placeholder="Paste multiple URLs (one per line)" class="w-full p-3 rounded border border-gray-300 mb-4"></textarea>
+        <button onclick="createBulk()" class="w-full py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Create Bulk Links</button>
+        <div id="bulkResult" class="mt-4 text-center font-medium"></div>
+    </div>
+</main>
+
+<footer class="bg-gray-900 text-white py-4 text-center mt-auto">
+    slicedrivee.site
+</footer>
 
 <script>
-const WORKER_URL = "https://slicedrivee.pengecrotan45.workers.dev"; // ganti sesuai Worker-mu
+function switchTab(tab) {
+    document.getElementById('single').classList.add('hidden');
+    document.getElementById('bulk').classList.add('hidden');
+    document.getElementById('tabSingle').classList.remove('bg-blue-600','text-white');
+    document.getElementById('tabBulk').classList.remove('bg-blue-600','text-white');
 
-document.getElementById("create").addEventListener("click", async () => {
-  const target = document.getElementById("target").value.trim();
-  const slug = document.getElementById("slug").value.trim();
-  const errorEl = document.getElementById("error");
-  const outputEl = document.getElementById("output");
-
-  errorEl.textContent = "";
-  if(!target){ errorEl.textContent = "Target URL wajib diisi!"; return; }
-
-  try {
-    const res = await fetch(WORKER_URL, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ target, slug })
-    });
-    if(!res.ok) throw new Error("Worker response error");
-    const data = await res.json();
-    if(data.ok){
-      outputEl.value = data.shortlink;
+    if(tab==='single') {
+        document.getElementById('single').classList.remove('hidden');
+        document.getElementById('tabSingle').classList.add('bg-blue-600','text-white');
     } else {
-      errorEl.textContent = data.error || "Unknown error";
+        document.getElementById('bulk').classList.remove('hidden');
+        document.getElementById('tabBulk').classList.add('bg-blue-600','text-white');
     }
-  } catch(e){
-    errorEl.textContent = "Fetch error: " + e.message;
-  }
-});
+}
+
+async function createSingle() {
+    const url = document.getElementById('singleUrl').value;
+    const slug = document.getElementById('singleSlug').value;
+    if(!url) return alert('Enter a URL!');
+    const res = await fetch('https://slicedrivee.pengecrotan45.workers.dev', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({target: url, slug: slug})
+    });
+    const data = await res.json();
+    document.getElementById('singleResult').innerText = data.ok ? `https://cdn.slicedrivee.site/${data.slug}` : data.error;
+}
+
+async function createBulk() {
+    const urls = document.getElementById('bulkUrls').value.split('\n').filter(u => u.trim() !== '');
+    const results = [];
+    for(let u of urls) {
+        const res = await fetch('https://slicedrivee.pengecrotan45.workers.dev', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({target: u})
+        });
+        const data = await res.json();
+        results.push(data.ok ? `https://cdn.slicedrivee.site/${data.slug}` : data.error);
+    }
+    document.getElementById('bulkResult').innerHTML = results.join('<br>');
+}
 </script>
 
 </body>
