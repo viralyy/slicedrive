@@ -1,3 +1,9 @@
+const ALLOWED_DOMAINS = [
+  "cdn.slicedrivee.site",
+  "cdn2.slicedrivee.site",
+  "media.slicedrivee.site"
+];
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -5,13 +11,18 @@ export async function onRequestPost(context) {
     const body = await request.json();
     const target = body.target;
     const custom = body.custom;
+    const domain = body.domain; // <--- ambil dari frontend dropdown
 
     if (!target || !target.startsWith("http")) {
       return Response.json({ ok: false, error: "Invalid target URL" }, { status: 400 });
     }
 
-    let id;
+    if (!domain || !ALLOWED_DOMAINS.includes(domain)) {
+      return Response.json({ ok: false, error: "Invalid domain" }, { status: 400 });
+    }
 
+    // generate ID
+    let id;
     if (custom && custom.length > 0) {
       id = custom.replace(/[^a-zA-Z0-9]/g, "");
       if (!id.endsWith("1")) id += "1";
@@ -20,23 +31,29 @@ export async function onRequestPost(context) {
       id = makeId();
     }
 
-    const exists = await env.SHORTLINK.get(id);
+    const key = domain + ":" + id; // <--- key KV = subdomain:id
+    const exists = await env.SHORTLINK.get(key);
 
     if (exists) {
       return Response.json({ ok: false, error: "ID already exists", id }, { status: 409 });
     }
 
-    await env.SHORTLINK.put(id, target);
+    const data = {
+      id,
+      domain,
+      target,
+      createdAt: new Date().toISOString(),
+      clicks: 0
+    };
+
+    await env.SHORTLINK.put(key, JSON.stringify(data));
 
     return Response.json({
       ok: true,
       id,
+      domain,
       target,
-      links: [
-        "https://cdn.slicedrivee.site/" + id,
-        "https://cdn2.slicedrivee.site/" + id,
-        "https://media.slicedrivee.site/" + id
-      ]
+      link: `https://${domain}/${id}`
     });
   } catch (e) {
     return Response.json({ ok: false, error: e.message }, { status: 500 });
@@ -46,10 +63,8 @@ export async function onRequestPost(context) {
 function makeId(length = 9) {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let id = "";
-
   for (let i = 0; i < length - 1; i++) {
     id += chars[Math.floor(Math.random() * chars.length)];
   }
-
   return id + "1.mp4";
 }
