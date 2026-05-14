@@ -5,86 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Slicedrivee CDN</title>
 <style>
-body{margin:0;font-family:sans-serif;background:#121212;color:#fff;display:flex;justify-content:center;align-items:flex-start;padding:2rem;}
-.card{background:#1f1f2f;padding:2rem;border-radius:12px;width:100%;max-width:500px;box-shadow:0 0 20px rgba(0,0,0,0.5);}
-input,select,textarea,button{width:100%;padding:.8rem;margin:.5rem 0;border-radius:8px;border:none;font-size:1rem;}
-button{cursor:pointer;background:linear-gradient(90deg,#6b5fff,#5bcaff);color:#fff;font-weight:bold;}
-h1{text-align:center;margin-bottom:1rem;}
-.link-box{background:#222;padding:.5rem;border-radius:.5rem;margin-top:.5rem;word-break:break-word;}
+  body { font-family: sans-serif; background:#1c1c2b; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; }
+  .container { max-width:400px; width:90%; background:#2c2c3b; padding:20px; border-radius:12px; }
+  input, select, button { width:100%; margin:8px 0; padding:10px; border-radius:8px; border:none; }
+  button { background: linear-gradient(90deg, #667eea, #764ba2); color:#fff; cursor:pointer; font-weight:bold; }
+  button:hover { opacity:0.9; }
+  .error { color:#ff6b6b; margin-top:8px; font-size:0.9em; }
+  textarea { min-height:100px; }
 </style>
 </head>
 <body>
-<div class="card">
-<h1>Slicedrivee CDN</h1>
 
-<select id="subdomain">
-<option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-<option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
-<option value="media.slicedrivee.site">media.slicedrivee.site</option>
-</select>
-
-<input type="url" id="target" placeholder="Target URL">
-<input type="text" id="custom" placeholder="Custom slug optional">
-<button id="createBtn">Create Shortlink</button>
-<div class="link-box" id="singleResult"></div>
-
-<textarea id="bulk" placeholder="Bulk URLs (one per line)"></textarea>
-<button id="bulkBtn">Create Bulk Links</button>
-<div class="link-box" id="bulkResult"></div>
-<button id="copyBtn">Copy All Links</button>
+<div class="container">
+  <h2>Slicedrivee CDN</h2>
+  <select id="subdomain">
+    <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+  </select>
+  <input type="url" id="target" placeholder="Target URL (https://example.com)">
+  <input type="text" id="slug" placeholder="Custom slug (optional)">
+  <button id="create">Create Shortlink</button>
+  <div class="error" id="error"></div>
+  <textarea id="output" placeholder="Generated shortlinks..." readonly></textarea>
 </div>
 
 <script>
-const WORKER_URL = "https://slicedrivee.pengecrotan45.workers.dev/api/create"
+const WORKER_URL = "https://slicedrivee.pengecrotan45.workers.dev"; // ganti sesuai Worker-mu
 
-// Single shortlink
-document.getElementById("createBtn").onclick = async () => {
-  const target = document.getElementById("target").value
-  const custom = document.getElementById("custom").value
-  const sub = document.getElementById("subdomain").value
-  if(!target){alert("Enter URL"); return}
+document.getElementById("create").addEventListener("click", async () => {
+  const target = document.getElementById("target").value.trim();
+  const slug = document.getElementById("slug").value.trim();
+  const errorEl = document.getElementById("error");
+  const outputEl = document.getElementById("output");
 
-  try{
-    const res = await fetch(WORKER_URL,{
+  errorEl.textContent = "";
+  if(!target){ errorEl.textContent = "Target URL wajib diisi!"; return; }
+
+  try {
+    const res = await fetch(WORKER_URL, {
       method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({target, custom})
-    })
-    const data = await res.json()
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ target, slug })
+    });
+    if(!res.ok) throw new Error("Worker response error");
+    const data = await res.json();
     if(data.ok){
-      document.getElementById("singleResult").innerHTML = data.links.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join("<br>")
-    }else{
-      document.getElementById("singleResult").innerText = data.error
+      outputEl.value = data.shortlink;
+    } else {
+      errorEl.textContent = data.error || "Unknown error";
     }
-  }catch(e){
-    document.getElementById("singleResult").innerText = "Fetch error: "+e
+  } catch(e){
+    errorEl.textContent = "Fetch error: " + e.message;
   }
-}
-
-// Bulk shortlink
-document.getElementById("bulkBtn").onclick = async () => {
-  const lines = document.getElementById("bulk").value.split("\n").filter(l=>l)
-  const results = []
-  for(const line of lines){
-    try{
-      const res = await fetch(WORKER_URL,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({target: line})
-      })
-      const data = await res.json()
-      if(data.ok) results.push(...data.links)
-    }catch(e){}
-  }
-  document.getElementById("bulkResult").innerHTML = results.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join("<br>")
-}
-
-// Copy all links
-document.getElementById("copyBtn").onclick = () => {
-  const text = Array.from(document.querySelectorAll("#singleResult a, #bulkResult a")).map(a=>a.href).join("\n")
-  navigator.clipboard.writeText(text)
-  alert("All links copied!")
-}
+});
 </script>
+
 </body>
 </html>
