@@ -1,5 +1,21 @@
-export async function onRequestPost({ request, env }) {
-  const { slug } = await request.json();
-  await env.DB.prepare("DELETE FROM links WHERE slug = ?").bind(slug.toUpperCase()).run();
-  return Response.json({ success: true });
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
+  try {
+    const body = await request.json();
+    const id = body.id;
+
+    if (!id) {
+      return Response.json({ ok: false, error: "ID required" }, { status: 400 });
+    }
+
+    await env.SHORTLINK.delete(id);
+
+    return Response.json({
+      ok: true,
+      deleted: id
+    });
+  } catch (e) {
+    return Response.json({ ok: false, error: e.message }, { status: 500 });
+  }
 }
