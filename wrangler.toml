@@ -1,0 +1,12 @@
+name = "slicedrive"
+main = "functions/worker.js"
+type = "javascript"
+
+account_id = "6bfe085a77c70d6bf86e47cac36bcce4"
+workers_dev = true
+route = "https://cdn2.slicedrivee.site/*"
+zone_id = "9d602f576f1e7b9cd4126afa1e7d3fcd"
+
+[[kv_namespaces]]
+binding = "short"  # <-- nama binding KV
+id = "0f54f4fd825945a0ac168a0978929d42"
