@@ -2,180 +2,204 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Slicedrivee CDN</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slicedrivee Shortlink</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   min-height:100vh;
-  font-family:Arial,sans-serif;
-  background:radial-gradient(circle at top,#242443,#08080c 60%);
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:22px;
+  font-family:Inter,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(88,101,242,.35),transparent 30%),
+    radial-gradient(circle at 80% 20%,rgba(0,255,200,.14),transparent 28%),
+    #07070b;
+  color:#fff;
+  overflow-x:hidden;
 }
-.card{
-  width:100%;
-  max-width:560px;
-  background:rgba(18,18,28,.94);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:28px;
-  padding:28px;
-  box-shadow:0 25px 70px rgba(0,0,0,.45);
+.wrap{max-width:1100px;margin:auto;padding:34px 18px}
+nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:70px}
+.logo{font-weight:900;font-size:22px}
+.badge{padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.08);font-size:13px;color:#bbb}
+.hero{text-align:center;margin-bottom:38px;animation:fade .7s ease}
+.hero h1{font-size:clamp(38px,7vw,76px);line-height:1;margin-bottom:18px}
+.hero p{color:#aaa;font-size:18px;max-width:720px;margin:auto;line-height:1.6}
+.panel{
+  background:rgba(18,18,28,.78);
+  border:1px solid rgba(255,255,255,.09);
+  backdrop-filter:blur(20px);
+  border-radius:30px;
+  padding:26px;
+  box-shadow:0 30px 90px rgba(0,0,0,.45);
+  animation:up .7s ease;
 }
-.badge{
-  display:inline-block;
-  padding:7px 12px;
-  border-radius:999px;
-  background:rgba(88,101,242,.18);
-  color:#9aa5ff;
-  font-size:13px;
-  margin-bottom:16px;
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.tab{
+  padding:14px;border:0;border-radius:16px;background:#101018;color:#aaa;
+  font-weight:800;cursor:pointer
 }
-h1{font-size:34px;margin-bottom:8px}
-p{color:#aaa;margin-bottom:24px;line-height:1.5}
-label{
-  display:block;
-  font-size:13px;
-  color:#bbb;
-  margin:14px 0 7px;
+.tab.active{background:#5865f2;color:#fff}
+.grid{display:grid;gap:14px}
+label{font-size:13px;color:#aaa}
+input,select,textarea{
+  width:100%;padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);
+  background:#09090f;color:#fff;outline:none;font-size:15px;margin-top:7px
 }
-input{
-  width:100%;
-  padding:15px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:15px;
-  background:#0d0d14;
-  color:white;
-  outline:none;
-  font-size:15px;
+textarea{height:170px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:#5865f2}
+.btn{
+  margin-top:18px;width:100%;padding:17px;border:0;border-radius:18px;
+  background:linear-gradient(135deg,#5865f2,#8b5cf6);
+  color:#fff;font-weight:900;font-size:16px;cursor:pointer
 }
-input:focus{border-color:#5865f2}
-button{
-  width:100%;
-  margin-top:18px;
-  padding:15px;
-  border:0;
-  border-radius:15px;
-  background:#5865f2;
-  color:white;
-  font-weight:700;
-  font-size:15px;
-  cursor:pointer;
-}
-button:disabled{opacity:.6;cursor:not-allowed}
+.btn:disabled{opacity:.6}
+.results{margin-top:22px;display:grid;gap:12px}
 .result{
-  margin-top:20px;
-  display:grid;
-  gap:10px;
+  background:#09090f;border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:14px;word-break:break-all
 }
-.link{
-  background:#0b0b11;
-  border:1px solid rgba(255,255,255,.07);
-  padding:13px;
-  border-radius:14px;
-  word-break:break-all;
-}
-.link a{
-  color:#91a0ff;
-  text-decoration:none;
-}
-.status{
-  margin-top:16px;
-  padding:13px;
-  border-radius:14px;
-  background:#08080d;
-  color:#aaa;
-  white-space:pre-wrap;
-  font-size:13px;
-}
-.footer{
-  margin-top:18px;
-  text-align:center;
-  color:#777;
-  font-size:12px;
-}
+.result a{color:#9aa5ff;text-decoration:none}
+.copy{float:right;background:#1d1d2b;color:#fff;border:0;border-radius:10px;padding:7px 10px;cursor:pointer}
+.status{margin-top:16px;color:#aaa;background:#09090f;border-radius:16px;padding:14px}
+.hidden{display:none}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 
 <body>
-<main class="card">
-  <div class="badge">Slicedrivee CDN</div>
+<div class="wrap">
+<nav>
+  <div class="logo">Slicedrivee</div>
+  <div class="badge">CDN Shortlink System</div>
+</nav>
 
-  <h1>Create Shortlink</h1>
+<section class="hero">
+  <h1>Professional Shortlink Generator</h1>
+  <p>Create clean shortlinks with fake <b>.mp4</b> style URL, custom subdomain, and automatic ID ending with <b>1</b>.</p>
+</section>
 
-  <p>
-    Generate shortlink otomatis dengan format <b>.mp4</b>
-    dan ID selalu berakhir angka <b>1</b>.
-  </p>
-
-  <label>Target URL</label>
-  <input id="target" placeholder="https://example.com">
-
-  <label>Custom ID optional</label>
-  <input id="custom" placeholder="contoh: abcde432">
-
-  <button id="btn">Create Shortlink</button>
-
-  <div class="result" id="links"></div>
-
-  <div class="status" id="status">Ready.</div>
-
-  <div class="footer">
-    powered by slicedrivee.site
+<section class="panel">
+  <div class="tabs">
+    <button class="tab active" onclick="setMode('single')">Short 1 Link</button>
+    <button class="tab" onclick="setMode('bulk')">Bulk Short</button>
   </div>
-</main>
+
+  <div class="grid">
+    <label>Choose Subdomain
+      <select id="domain">
+        <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+        <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
+        <option value="media.slicedrivee.site">media.slicedrivee.site</option>
+      </select>
+    </label>
+
+    <div id="singleBox">
+      <label>Target URL
+        <input id="target" placeholder="https://example.com">
+      </label>
+
+      <label>Custom Slug optional
+        <input id="custom" placeholder="abcde432">
+      </label>
+    </div>
+
+    <div id="bulkBox" class="hidden">
+      <label>Bulk URLs, satu link per baris
+        <textarea id="bulk" placeholder="https://example.com&#10;https://google.com&#10;https://youtube.com"></textarea>
+      </label>
+    </div>
+
+    <button class="btn" id="btn">Create Shortlink</button>
+  </div>
+
+  <div class="results" id="results"></div>
+  <div class="status" id="status">Ready.</div>
+</section>
+</div>
 
 <script>
-const btn = document.getElementById("btn");
-const statusBox = document.getElementById("status");
-const linksBox = document.getElementById("links");
+let mode = "single";
 
-btn.addEventListener("click", async () => {
-  const target = document.getElementById("target").value.trim();
-  const custom = document.getElementById("custom").value.trim();
+function setMode(m){
+  mode = m;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("singleBox").classList.toggle("hidden", m !== "single");
+  document.getElementById("bulkBox").classList.toggle("hidden", m !== "bulk");
+  document.getElementById("results").innerHTML = "";
+  document.getElementById("status").textContent = "Ready.";
+}
 
-  linksBox.innerHTML = "";
-  statusBox.textContent = "Creating...";
+async function createOne(target, custom = ""){
+  const domain = document.getElementById("domain").value;
+
+  const res = await fetch("/api/create", {
+    method:"POST",
+    headers:{ "content-type":"application/json" },
+    body:JSON.stringify({ target, custom, domain })
+  });
+
+  return await res.json();
+}
+
+function addResult(link){
+  const box = document.getElementById("results");
+  const div = document.createElement("div");
+  div.className = "result";
+  div.innerHTML = `
+    <button class="copy" onclick="navigator.clipboard.writeText('${link}')">Copy</button>
+    <a href="${link}" target="_blank">${link}</a>
+  `;
+  box.appendChild(div);
+}
+
+document.getElementById("btn").onclick = async () => {
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+  const results = document.getElementById("results");
+
   btn.disabled = true;
+  results.innerHTML = "";
+  status.textContent = "Creating...";
 
   try {
-    const res = await fetch("/api/create", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({
-        target,
-        custom
-      })
-    });
+    if(mode === "single"){
+      const target = document.getElementById("target").value.trim();
+      const custom = document.getElementById("custom").value.trim();
 
-    const data = await res.json();
+      const data = await createOne(target, custom);
 
-    if (!data.ok) {
-      statusBox.textContent = "Error: " + data.error;
-      return;
+      if(!data.ok){
+        status.textContent = "Error: " + data.error;
+      } else {
+        addResult(data.link);
+        status.textContent = "Success: " + data.id;
+      }
+    } else {
+      const urls = document.getElementById("bulk").value
+        .split("\n")
+        .map(x => x.trim())
+        .filter(Boolean);
+
+      let success = 0;
+
+      for(const url of urls){
+        const data = await createOne(url, "");
+        if(data.ok){
+          success++;
+          addResult(data.link);
+        }
+      }
+
+      status.textContent = "Bulk done. Success: " + success + "/" + urls.length;
     }
-
-    statusBox.textContent = "Success! ID: " + data.id;
-
-    data.links.forEach(link => {
-      const div = document.createElement("div");
-      div.className = "link";
-      div.innerHTML = '<a href="' + link + '" target="_blank">' + link + '</a>';
-      linksBox.appendChild(div);
-    });
-
-  } catch (err) {
-    statusBox.textContent = "Error: " + err.message;
+  } catch(e){
+    status.textContent = "Error: " + e.message;
   } finally {
     btn.disabled = false;
   }
-});
+};
 </script>
 </body>
 </html>
