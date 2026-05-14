@@ -37,17 +37,19 @@ input:focus,select:focus,textarea:focus{border-color:#5865f2}
 textarea{height:150px;resize:vertical}
 button.btn{padding:16px;margin-top:16px;background:linear-gradient(135deg,#5865f2,#8b5cf6);color:white;font-weight:700;cursor:pointer;transition:.3s}
 button.btn:hover{opacity:.95}
-.results{margin-top:22px;display:grid;gap:12px;max-height:220px;overflow-y:auto}
+.results{margin-top:22px;display:grid;gap:12px;max-height:220px;overflow-y:auto;border-radius:14px}
 .result{
-  background:#0b0b11;border:1px solid rgba(255,255,255,.07);padding:13px;border-radius:14px;display:flex;justify-content:space-between;align-items:center
+  background:#0b0b11;border:1px solid rgba(255,255,255,.07);padding:13px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;
+  max-height:48px;
 }
 .result a{color:#9aa0ff;text-decoration:none;word-break:break-all}
 .copy{background:#1d1d2b;color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;cursor:pointer;border:none;transition:.2s}
 .copy:hover{opacity:.8}
 #bulkCopyAll{margin-top:6px;margin-bottom:6px;background:#5865f2;color:white;padding:10px 12px;border-radius:12px;border:none;cursor:pointer;transition:.2s}
 #bulkCopyAll:hover{opacity:.9}
-.status{margin-top:16px;color:#aaa;background:#09090f;border-radius:16px;padding:12px;font-size:13px;white-space:pre-wrap;text-align:center}
+.footer{margin-top:18px;text-align:center;color:#777;font-size:12px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hidden{display:none}
 </style>
 </head>
 <body>
@@ -70,11 +72,13 @@ button.btn:hover{opacity:.95}
     </select>
   </label>
 
+  <!-- Single Link -->
   <div id="singleBox">
     <label>Target URL<input id="target" placeholder="https://example.com"></label>
     <label>Custom Slug optional<input id="custom" placeholder="abcde432"></label>
   </div>
 
+  <!-- Bulk -->
   <div id="bulkBox" class="hidden">
     <label>Bulk URLs (one per line)
       <textarea id="bulk" placeholder="https://example.com&#10;https://google.com"></textarea>
@@ -86,66 +90,63 @@ button.btn:hover{opacity:.95}
 </div>
 
 <div class="results" id="results"></div>
-<div class="status" id="status">Ready.</div>
+<div class="footer">Powered by slicedrivee.site</div>
 </div>
 
 <script>
-let mode = 'single';
-const API = 'https://slicedrive-short.pengecrotan45.workers.dev';
+let mode='single';
+const API='https://slicedrive-short.pengecrotan45.workers.dev';
 
 function setMode(m){
-  mode = m;
+  mode=m;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   event.target.classList.add('active');
-  document.getElementById('singleBox').classList.toggle('hidden', m!=='single');
-  document.getElementById('bulkBox').classList.toggle('hidden', m!=='bulk');
-  document.getElementById('results').innerHTML = '';
-  document.getElementById('status').textContent='Ready.';
+  document.getElementById('singleBox').classList.toggle('hidden',m!=='single');
+  document.getElementById('bulkBox').classList.toggle('hidden',m!=='bulk');
+  document.getElementById('results').innerHTML='';
 }
 
-async function createOne(target, custom=''){
-  const domain = document.getElementById('domain').value;
-  const res = await fetch(API+'/api/create',{
+async function createOne(target,custom=''){
+  const domain=document.getElementById('domain').value;
+  const res=await fetch(API+'/api/create',{
     method:'POST',
     headers:{'content-type':'application/json'},
-    body:JSON.stringify({target, custom, domain})
+    body:JSON.stringify({target,custom,domain})
   });
   return await res.json();
 }
 
 function addResult(link){
-  const box = document.getElementById('results');
-  const div = document.createElement('div');
+  const box=document.getElementById('results');
+  const div=document.createElement('div');
   div.className='result';
   div.innerHTML=`<a href="${link}" target="_blank">${link}</a><button class="copy" onclick="navigator.clipboard.writeText('${link}')">Copy</button>`;
   box.appendChild(div);
 }
 
 document.getElementById('btn').onclick=async()=>{
-  const btn = document.getElementById('btn');
-  const status = document.getElementById('status');
-  const results = document.getElementById('results');
-  btn.disabled=true;results.innerHTML='';status.textContent='Creating...';
-
+  const btn=document.getElementById('btn');
+  btn.disabled=true;
+  const results=document.getElementById('results');
+  results.innerHTML='';
   try{
     if(mode==='single'){
       const target=document.getElementById('target').value.trim();
       const custom=document.getElementById('custom').value.trim();
-      const data=await createOne(target, custom);
-      if(!data.ok){status.textContent='Error: '+data.error;return;}
+      const data=await createOne(target,custom);
+      if(!data.ok){alert('Error: '+data.error);btn.disabled=false;return;}
       addResult(data.link);
-      status.textContent='Success: '+data.id;
     }else{
       const urls=document.getElementById('bulk').value.split('\n').map(x=>x.trim()).filter(Boolean);
-      let success=0;let links=[];
+      let links=[];
       for(const url of urls){
         const data=await createOne(url,'');
-        if(data.ok){success++;addResult(data.link);links.push(data.link);}
+        if(data.ok){addResult(data.link);links.push(data.link);}
       }
-      status.textContent=`Bulk done. Success: ${success}/${urls.length}`;
       document.getElementById('bulkCopyAll').onclick=()=>{navigator.clipboard.writeText(links.join('\n'));}
+      alert(`Bulk done. ${links.length}/${urls.length} created`);
     }
-  }catch(e){status.textContent='Error: '+e.message;}
+  }catch(e){alert('Error: '+e.message);}
   finally{btn.disabled=false;}
 }
 </script>
