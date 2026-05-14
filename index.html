@@ -2,90 +2,72 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShortDrive</title>
+<title>ShortDrive Link Creator</title>
 <style>
-body{margin:0;font-family:sans-serif;background:#121212;color:#fff;display:flex;justify-content:center;align-items:flex-start;padding-top:50px;}
-.container{background:#1e1e1e;padding:30px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.5);width:100%;max-width:480px;}
-h1{text-align:center;margin-bottom:20px;font-size:26px;}
-.toggle{display:flex;justify-content:center;margin-bottom:20px;}
-.toggle button{flex:1;margin:0 5px;padding:10px 0;background:#2a2a2a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;transition:0.2s;}
-.toggle button.active{background:#4a90e2;}
-.form-group{margin-bottom:15px;}
-label{display:block;margin-bottom:5px;font-size:14px;color:#ccc;}
-input, select{width:100%;padding:10px;border-radius:6px;border:none;background:#2a2d3f;color:#fff;font-size:14px;}
-button#create{width:100%;padding:12px;background:#4a90e2;color:#fff;border:none;border-radius:6px;font-size:16px;cursor:pointer;font-weight:bold;margin-top:10px;transition:0.2s;}
-button#create:hover{background:#357ABD;}
-#message{margin-top:15px;text-align:center;padding:10px;border-radius:6px;display:none;}
-#message.success{background:#2a5d2f;color:#b6ffb6;}
-#message.error{background:#5d2f2f;color:#ffb6b6;}
+body{margin:0;font-family:Arial,sans-serif;background:#121212;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;}
+.container{background:#1e1e1e;padding:30px;border-radius:12px;width:100%;max-width:450px;box-shadow:0 0 15px rgba(0,0,0,0.5);}
+h1{margin:0 0 20px;text-align:center;font-size:22px;}
+.tab{display:flex;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid #333;}
+.tab button{flex:1;padding:10px 0;background:#2c2c2c;border:none;color:#aaa;font-weight:bold;cursor:pointer;transition:.2s;}
+.tab button.active{background:#3a86ff;color:#fff;}
+label{display:block;margin-bottom:5px;margin-top:10px;font-size:14px;color:#ccc;}
+input, select, textarea{width:100%;padding:10px;border-radius:6px;border:none;margin-bottom:10px;background:#2c2c2c;color:#fff;outline:none;font-size:14px;}
+button#create{width:100%;padding:12px;background:#3a86ff;border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer;transition:.2s;}
+button#create:hover{background:#1f65d1;}
+#result{margin-top:15px;font-size:14px;line-height:1.5;}
+.error{color:#ff5a5f;}
+.success{color:#4caf50;word-break:break-word;}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>ShortDrive Link Creator</h1>
-
-<div class="toggle">
-<button id="singleBtn" class="active">Single URL</button>
-<button id="bulkBtn">Bulk URL</button>
+<div class="tab">
+<button id="singleTab" class="active">Single URL</button>
+<button id="bulkTab">Bulk URL</button>
 </div>
-
-<div class="form-group">
+<div id="formArea">
 <label for="domain">Select Domain</label>
 <select id="domain">
 <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-<option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
-<option value="media.slicedrivee.site">media.slicedrivee.site</option>
 </select>
-</div>
-
-<div class="form-group">
 <label for="alias">Custom Alias (Optional)</label>
 <input type="text" id="alias" placeholder="my-brand">
-</div>
-
-<div class="form-group">
-<label for="longUrl">Paste Your Long URL</label>
-<input type="url" id="longUrl" placeholder="https://...">
-</div>
-
+<label for="url">Paste Your Long URL</label>
+<textarea id="url" rows="2" placeholder="https://example.com"></textarea>
 <button id="create">Create Link</button>
-<div id="message"></div>
+<div id="result"></div>
+</div>
 </div>
 
 <script>
-const singleBtn = document.getElementById('singleBtn');
-const bulkBtn = document.getElementById('bulkBtn');
-const createBtn = document.getElementById('create');
-const message = document.getElementById('message');
+const singleTab = document.getElementById("singleTab");
+const bulkTab = document.getElementById("bulkTab");
+const urlInput = document.getElementById("url");
+const createBtn = document.getElementById("create");
+const resultDiv = document.getElementById("result");
 
-singleBtn.addEventListener('click',()=>{
-singleBtn.classList.add('active');bulkBtn.classList.remove('active');});
-bulkBtn.addEventListener('click',()=>{
-bulkBtn.classList.add('active');singleBtn.classList.remove('active');});
+singleTab.addEventListener("click",()=>{singleTab.classList.add("active");bulkTab.classList.remove("active");urlInput.rows=2;});
+bulkTab.addEventListener("click",()=>{bulkTab.classList.add("active");singleTab.classList.remove("active");urlInput.rows=6;});
 
-createBtn.addEventListener('click',async()=>{
-const domain = document.getElementById('domain').value;
-const alias = document.getElementById('alias').value;
-const longUrl = document.getElementById('longUrl').value;
-if(!longUrl){message.style.display='block';message.className='error';message.textContent='Please enter a URL!';return;}
+createBtn.addEventListener("click",async()=>{
+resultDiv.textContent="";
+const domain=document.getElementById("domain").value;
+const alias=document.getElementById("alias").value.trim();
+const urls=urlInput.value.trim().split("\n").filter(u=>u);
+if(urls.length===0){resultDiv.innerHTML="<span class='error'>Please enter URL(s)</span>";return;}
+createBtn.disabled=true;
+createBtn.textContent="Processing...";
 try{
-const res = await fetch(`/api/create?domain=${domain}&alias=${alias}&url=${encodeURIComponent(longUrl)}`);
-const data = await res.json();
+const res=await fetch("https://slicedrive.pengecrotan45.workers.dev/api/create",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({domain,alias,urls:bulkTab.classList.contains("active")?urls:urls[0]})});
+const data=await res.json();
 if(data.ok){
-message.style.display='block';
-message.className='success';
-message.innerHTML=`Success! <a href="${data.shortUrl}" target="_blank" style="color:#fff;text-decoration:underline;">${data.shortUrl}</a>`;
-}else{
-message.style.display='block';
-message.className='error';
-message.textContent=`Error: ${data.error}`;
-}
-}catch(e){
-message.style.display='block';
-message.className='error';
-message.textContent='Network error!';
-}
+const links=data.shortUrls.map(l=>`<a href='${l}' target='_blank'>${l}</a>`).join("<br>");
+resultDiv.innerHTML=`<span class='success'>Shortlink created:<br>${links}</span>`;
+}else{resultDiv.innerHTML=`<span class='error'>${data.error}</span>`;}
+}catch(err){resultDiv.innerHTML=`<span class='error'>Network or Worker error</span>`;}
+createBtn.disabled=false;
+createBtn.textContent="Create Link";
 });
 </script>
 </body>
