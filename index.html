@@ -3,106 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slicedrivee CDN Shortlink</title>
+<title>Slicedrivee CDN</title>
 <style>
-  body { margin:0; font-family:sans-serif; background:#1e1e2f; color:#eee; display:flex; justify-content:center; align-items:center; min-height:100vh; }
-  .card { background:#111; padding:2rem; border-radius:1rem; width:95%; max-width:500px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
-  h1 { text-align:center; font-size:1.8rem; }
-  input, select, textarea { width:100%; padding:0.8rem; margin:0.5rem 0; border-radius:0.5rem; border:none; }
-  button { width:100%; padding:0.8rem; margin:0.5rem 0; border:none; border-radius:0.5rem; background:linear-gradient(90deg,#6b5bff,#8f7bff); color:#fff; cursor:pointer; font-weight:bold; }
-  .tabs { display:flex; margin-bottom:1rem; }
-  .tab { flex:1; text-align:center; padding:0.5rem; cursor:pointer; border-radius:0.5rem; background:#222; }
-  .tab.active { background:#6b5bff; color:#fff; }
-  .hidden { display:none; }
-  .link-box { background:#222; padding:0.5rem; border-radius:0.5rem; margin-top:0.5rem; word-break:break-all; }
+body{margin:0;font-family:sans-serif;background:#121212;color:#fff;display:flex;justify-content:center;align-items:flex-start;padding:2rem;}
+.card{background:#1f1f2f;padding:2rem;border-radius:12px;width:100%;max-width:500px;box-shadow:0 0 20px rgba(0,0,0,0.5);}
+input,select,textarea,button{width:100%;padding:.8rem;margin:.5rem 0;border-radius:8px;border:none;font-size:1rem;}
+button{cursor:pointer;background:linear-gradient(90deg,#6b5fff,#5bcaff);color:#fff;font-weight:bold;}
+h1{text-align:center;margin-bottom:1rem;}
+.link-box{background:#222;padding:.5rem;border-radius:.5rem;margin-top:.5rem;word-break:break-word;}
 </style>
 </head>
 <body>
-
 <div class="card">
-  <h1>Slicedrivee CDN</h1>
-  <div class="tabs">
-    <div class="tab active" id="single-tab">Short 1 Link</div>
-    <div class="tab" id="bulk-tab">Bulk Short</div>
-  </div>
+<h1>Slicedrivee CDN</h1>
 
-  <!-- Single -->
-  <div id="single">
-    <select id="subdomain">
-      <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-      <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
-      <option value="media.slicedrivee.site">media.slicedrivee.site</option>
-    </select>
-    <input type="text" id="target" placeholder="Target URL (https://)">
-    <input type="text" id="custom" placeholder="Custom Slug (optional)">
-    <button id="create-single">Create Shortlink</button>
-    <div class="link-box" id="single-result"></div>
-  </div>
+<select id="subdomain">
+<option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+<option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
+<option value="media.slicedrivee.site">media.slicedrivee.site</option>
+</select>
 
-  <!-- Bulk -->
-  <div id="bulk" class="hidden">
-    <select id="bulk-subdomain">
-      <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-      <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
-      <option value="media.slicedrivee.site">media.slicedrivee.site</option>
-    </select>
-    <textarea id="bulk-urls" rows="5" placeholder="One URL per line"></textarea>
-    <button id="create-bulk">Create Bulk Links</button>
-    <div class="link-box" id="bulk-result"></div>
-    <button id="copy-bulk">Copy All Links</button>
-  </div>
+<input type="url" id="target" placeholder="Target URL">
+<input type="text" id="custom" placeholder="Custom slug optional">
+<button id="createBtn">Create Shortlink</button>
+<div class="link-box" id="singleResult"></div>
+
+<textarea id="bulk" placeholder="Bulk URLs (one per line)"></textarea>
+<button id="bulkBtn">Create Bulk Links</button>
+<div class="link-box" id="bulkResult"></div>
+<button id="copyBtn">Copy All Links</button>
 </div>
 
 <script>
-const singleTab = document.getElementById("single-tab")
-const bulkTab = document.getElementById("bulk-tab")
-const singleDiv = document.getElementById("single")
-const bulkDiv = document.getElementById("bulk")
+const WORKER_URL = "https://slicedrivee.pengecrotan45.workers.dev/api/create"
 
-singleTab.onclick = () => { singleTab.classList.add("active"); bulkTab.classList.remove("active"); singleDiv.classList.remove("hidden"); bulkDiv.classList.add("hidden") }
-bulkTab.onclick = () => { bulkTab.classList.add("active"); singleTab.classList.remove("active"); bulkDiv.classList.remove("hidden"); singleDiv.classList.add("hidden") }
-
-async function createLink(target, custom) {
-  const res = await fetch("/", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({target, custom})
-  })
-  return res.json()
-}
-
-document.getElementById("create-single").onclick = async () => {
+// Single shortlink
+document.getElementById("createBtn").onclick = async () => {
   const target = document.getElementById("target").value
   const custom = document.getElementById("custom").value
-  const data = await createLink(target, custom)
-  if(data.ok) {
-    document.getElementById("single-result").innerHTML = data.links.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join("<br>")
-  } else {
-    document.getElementById("single-result").textContent = data.error
-  }
-}
+  const sub = document.getElementById("subdomain").value
+  if(!target){alert("Enter URL"); return}
 
-document.getElementById("create-bulk").onclick = async () => {
-  const urls = document.getElementById("bulk-urls").value.split("\n").filter(u=>u)
-  const subdomain = document.getElementById("bulk-subdomain").value
-  const results = []
-  for(const u of urls){
-    const data = await createLink(u, "")
+  try{
+    const res = await fetch(WORKER_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({target, custom})
+    })
+    const data = await res.json()
     if(data.ok){
-      results.push(`${subdomain}/${data.id}`)
-    } else {
-      results.push(`ERROR: ${u}`)
+      document.getElementById("singleResult").innerHTML = data.links.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join("<br>")
+    }else{
+      document.getElementById("singleResult").innerText = data.error
     }
+  }catch(e){
+    document.getElementById("singleResult").innerText = "Fetch error: "+e
   }
-  document.getElementById("bulk-result").innerHTML = results.join("<br>")
 }
 
-document.getElementById("copy-bulk").onclick = () => {
-  const text = document.getElementById("bulk-result").innerText
+// Bulk shortlink
+document.getElementById("bulkBtn").onclick = async () => {
+  const lines = document.getElementById("bulk").value.split("\n").filter(l=>l)
+  const results = []
+  for(const line of lines){
+    try{
+      const res = await fetch(WORKER_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({target: line})
+      })
+      const data = await res.json()
+      if(data.ok) results.push(...data.links)
+    }catch(e){}
+  }
+  document.getElementById("bulkResult").innerHTML = results.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join("<br>")
+}
+
+// Copy all links
+document.getElementById("copyBtn").onclick = () => {
+  const text = Array.from(document.querySelectorAll("#singleResult a, #bulkResult a")).map(a=>a.href).join("\n")
   navigator.clipboard.writeText(text)
-  alert("Copied all links!")
+  alert("All links copied!")
 }
 </script>
-
 </body>
 </html>
