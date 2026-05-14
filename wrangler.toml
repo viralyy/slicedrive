@@ -1,8 +1,9 @@
-name = "slicedrivee-shortlink"
-pages_build_output_dir = "public"
+name = "short-drive"
+main = "src/index.js"
 compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
 
-[[d1_databases]]
+# KV Binding
+[[kv_namespaces]]
 binding = "DB"
-database_name = "slicedrivee-short"
-database_id = "163c3de3-fa42-4c6a-9f1f-cef8fb351bb4"
+id = "short_drive"      # ← pastikan ini sama persis dengan nama KV kamu
