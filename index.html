@@ -2,204 +2,153 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Slicedrivee Shortlink</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
+<title>Slicedrivee CDN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;user-select:none}
 body{
-  min-height:100vh;
-  font-family:Inter,Arial,sans-serif;
-  background:
-    radial-gradient(circle at 20% 10%,rgba(88,101,242,.35),transparent 30%),
-    radial-gradient(circle at 80% 20%,rgba(0,255,200,.14),transparent 28%),
-    #07070b;
-  color:#fff;
-  overflow-x:hidden;
+  font-family: 'Inter', Arial, sans-serif;
+  background: radial-gradient(circle at 20% 10%, #5859f2 35%, transparent 30%), radial-gradient(circle at 80% 20%, #00ffc8 14%, transparent 28%), #07070b;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
-.wrap{max-width:1100px;margin:auto;padding:34px 18px}
-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:70px}
-.logo{font-weight:900;font-size:22px}
-.badge{padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.08);font-size:13px;color:#bbb}
-.hero{text-align:center;margin-bottom:38px;animation:fade .7s ease}
-.hero h1{font-size:clamp(38px,7vw,76px);line-height:1;margin-bottom:18px}
-.hero p{color:#aaa;font-size:18px;max-width:720px;margin:auto;line-height:1.6}
-.panel{
-  background:rgba(18,18,28,.78);
-  border:1px solid rgba(255,255,255,.09);
-  backdrop-filter:blur(20px);
-  border-radius:30px;
-  padding:26px;
-  box-shadow:0 30px 90px rgba(0,0,0,.45);
-  animation:up .7s ease;
+.card{
+  width:100%;
+  max-width:580px;
+  background:rgba(18,18,28,.95);
+  border-radius:28px;
+  border:1px solid rgba(255,255,255,.08);
+  padding:32px;
+  box-shadow:0 35px 90px rgba(0,0,0,.45);
+  animation:fadeUp 0.7s ease;
 }
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
-.tab{
-  padding:14px;border:0;border-radius:16px;background:#101018;color:#aaa;
-  font-weight:800;cursor:pointer
-}
-.tab.active{background:#5865f2;color:#fff}
+h1{font-size:clamp(32px,6vw,72px);color:white;margin-bottom:10px;text-align:center}
+p{color:#aaa;margin-bottom:25px;text-align:center;line-height:1.5}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.tab{padding:14px;border-radius:16px;background:#101018;color:#aaa;font-weight:700;cursor:pointer;transition:.3s}
+.tab.active{background:#5865f2;color:white}
 .grid{display:grid;gap:14px}
-label{font-size:13px;color:#aaa}
-input,select,textarea{
-  width:100%;padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);
-  background:#09090f;color:#fff;outline:none;font-size:15px;margin-top:7px
-}
-textarea{height:170px;resize:vertical}
+label{font-size:13px;color:#bbb;margin-top:6px;display:block}
+input,select,textarea,button{width:100%;border-radius:16px;font-size:15px;outline:none;border:none}
+input,select,textarea{padding:14px;background:#0d0d14;color:white;border:1px solid rgba(255,255,255,.08)}
 input:focus,select:focus,textarea:focus{border-color:#5865f2}
-.btn{
-  margin-top:18px;width:100%;padding:17px;border:0;border-radius:18px;
-  background:linear-gradient(135deg,#5865f2,#8b5cf6);
-  color:#fff;font-weight:900;font-size:16px;cursor:pointer
-}
-.btn:disabled{opacity:.6}
-.results{margin-top:22px;display:grid;gap:12px}
+textarea{height:150px;resize:vertical}
+button.btn{padding:16px;margin-top:16px;background:linear-gradient(135deg,#5865f2,#8b5cf6);color:white;font-weight:700;cursor:pointer;transition:.3s}
+button.btn:hover{opacity:.95}
+.results{margin-top:22px;display:grid;gap:12px;max-height:220px;overflow-y:auto}
 .result{
-  background:#09090f;border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;padding:14px;word-break:break-all
+  background:#0b0b11;border:1px solid rgba(255,255,255,.07);padding:13px;border-radius:14px;display:flex;justify-content:space-between;align-items:center
 }
-.result a{color:#9aa5ff;text-decoration:none}
-.copy{float:right;background:#1d1d2b;color:#fff;border:0;border-radius:10px;padding:7px 10px;cursor:pointer}
-.status{margin-top:16px;color:#aaa;background:#09090f;border-radius:16px;padding:14px}
-.hidden{display:none}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.result a{color:#9aa0ff;text-decoration:none;word-break:break-all}
+.copy{background:#1d1d2b;color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;cursor:pointer;border:none;transition:.2s}
+.copy:hover{opacity:.8}
+#bulkCopyAll{margin-top:6px;margin-bottom:6px;background:#5865f2;color:white;padding:10px 12px;border-radius:12px;border:none;cursor:pointer;transition:.2s}
+#bulkCopyAll:hover{opacity:.9}
+.status{margin-top:16px;color:#aaa;background:#09090f;border-radius:16px;padding:12px;font-size:13px;white-space:pre-wrap;text-align:center}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
-
 <body>
-<div class="wrap">
-<nav>
-  <div class="logo">Slicedrivee</div>
-  <div class="badge">CDN Shortlink System</div>
-</nav>
 
-<section class="hero">
-  <h1>Professional Shortlink Generator</h1>
-  <p>Create clean shortlinks with fake <b>.mp4</b> style URL, custom subdomain, and automatic ID ending with <b>1</b>.</p>
-</section>
+<div class="card">
+<h1>Slicedrivee CDN</h1>
+<p>Generate shortlinks with <b>.mp4</b> style, choose subdomain, single or bulk, animated UI</p>
 
-<section class="panel">
-  <div class="tabs">
-    <button class="tab active" onclick="setMode('single')">Short 1 Link</button>
-    <button class="tab" onclick="setMode('bulk')">Bulk Short</button>
+<div class="tabs">
+  <button class="tab active" onclick="setMode('single')">Short 1 Link</button>
+  <button class="tab" onclick="setMode('bulk')">Bulk Short</button>
+</div>
+
+<div class="grid">
+  <label>Choose Subdomain
+    <select id="domain">
+      <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+      <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
+      <option value="media.slicedrivee.site">media.slicedrivee.site</option>
+    </select>
+  </label>
+
+  <div id="singleBox">
+    <label>Target URL<input id="target" placeholder="https://example.com"></label>
+    <label>Custom Slug optional<input id="custom" placeholder="abcde432"></label>
   </div>
 
-  <div class="grid">
-    <label>Choose Subdomain
-      <select id="domain">
-        <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
-        <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
-        <option value="media.slicedrivee.site">media.slicedrivee.site</option>
-      </select>
+  <div id="bulkBox" class="hidden">
+    <label>Bulk URLs (one per line)
+      <textarea id="bulk" placeholder="https://example.com&#10;https://google.com"></textarea>
     </label>
-
-    <div id="singleBox">
-      <label>Target URL
-        <input id="target" placeholder="https://example.com">
-      </label>
-
-      <label>Custom Slug optional
-        <input id="custom" placeholder="abcde432">
-      </label>
-    </div>
-
-    <div id="bulkBox" class="hidden">
-      <label>Bulk URLs, satu link per baris
-        <textarea id="bulk" placeholder="https://example.com&#10;https://google.com&#10;https://youtube.com"></textarea>
-      </label>
-    </div>
-
-    <button class="btn" id="btn">Create Shortlink</button>
+    <button id="bulkCopyAll">Copy All Links</button>
   </div>
 
-  <div class="results" id="results"></div>
-  <div class="status" id="status">Ready.</div>
-</section>
+  <button class="btn" id="btn">Create Shortlink</button>
+</div>
+
+<div class="results" id="results"></div>
+<div class="status" id="status">Ready.</div>
 </div>
 
 <script>
-let mode = "single";
+let mode = 'single';
+const API = 'https://slicedrive-short.pengecrotan45.workers.dev';
 
 function setMode(m){
   mode = m;
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  event.target.classList.add("active");
-  document.getElementById("singleBox").classList.toggle("hidden", m !== "single");
-  document.getElementById("bulkBox").classList.toggle("hidden", m !== "bulk");
-  document.getElementById("results").innerHTML = "";
-  document.getElementById("status").textContent = "Ready.";
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('singleBox').classList.toggle('hidden', m!=='single');
+  document.getElementById('bulkBox').classList.toggle('hidden', m!=='bulk');
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('status').textContent='Ready.';
 }
 
-async function createOne(target, custom = ""){
-  const domain = document.getElementById("domain").value;
-
-  const res = await fetch("/api/create", {
-    method:"POST",
-    headers:{ "content-type":"application/json" },
-    body:JSON.stringify({ target, custom, domain })
+async function createOne(target, custom=''){
+  const domain = document.getElementById('domain').value;
+  const res = await fetch(API+'/api/create',{
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({target, custom, domain})
   });
-
   return await res.json();
 }
 
 function addResult(link){
-  const box = document.getElementById("results");
-  const div = document.createElement("div");
-  div.className = "result";
-  div.innerHTML = `
-    <button class="copy" onclick="navigator.clipboard.writeText('${link}')">Copy</button>
-    <a href="${link}" target="_blank">${link}</a>
-  `;
+  const box = document.getElementById('results');
+  const div = document.createElement('div');
+  div.className='result';
+  div.innerHTML=`<a href="${link}" target="_blank">${link}</a><button class="copy" onclick="navigator.clipboard.writeText('${link}')">Copy</button>`;
   box.appendChild(div);
 }
 
-document.getElementById("btn").onclick = async () => {
-  const btn = document.getElementById("btn");
-  const status = document.getElementById("status");
-  const results = document.getElementById("results");
+document.getElementById('btn').onclick=async()=>{
+  const btn = document.getElementById('btn');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+  btn.disabled=true;results.innerHTML='';status.textContent='Creating...';
 
-  btn.disabled = true;
-  results.innerHTML = "";
-  status.textContent = "Creating...";
-
-  try {
-    if(mode === "single"){
-      const target = document.getElementById("target").value.trim();
-      const custom = document.getElementById("custom").value.trim();
-
-      const data = await createOne(target, custom);
-
-      if(!data.ok){
-        status.textContent = "Error: " + data.error;
-      } else {
-        addResult(data.link);
-        status.textContent = "Success: " + data.id;
-      }
-    } else {
-      const urls = document.getElementById("bulk").value
-        .split("\n")
-        .map(x => x.trim())
-        .filter(Boolean);
-
-      let success = 0;
-
+  try{
+    if(mode==='single'){
+      const target=document.getElementById('target').value.trim();
+      const custom=document.getElementById('custom').value.trim();
+      const data=await createOne(target, custom);
+      if(!data.ok){status.textContent='Error: '+data.error;return;}
+      addResult(data.link);
+      status.textContent='Success: '+data.id;
+    }else{
+      const urls=document.getElementById('bulk').value.split('\n').map(x=>x.trim()).filter(Boolean);
+      let success=0;let links=[];
       for(const url of urls){
-        const data = await createOne(url, "");
-        if(data.ok){
-          success++;
-          addResult(data.link);
-        }
+        const data=await createOne(url,'');
+        if(data.ok){success++;addResult(data.link);links.push(data.link);}
       }
-
-      status.textContent = "Bulk done. Success: " + success + "/" + urls.length;
+      status.textContent=`Bulk done. Success: ${success}/${urls.length}`;
+      document.getElementById('bulkCopyAll').onclick=()=>{navigator.clipboard.writeText(links.join('\n'));}
     }
-  } catch(e){
-    status.textContent = "Error: " + e.message;
-  } finally {
-    btn.disabled = false;
-  }
-};
+  }catch(e){status.textContent='Error: '+e.message;}
+  finally{btn.disabled=false;}
+}
 </script>
+
 </body>
 </html>
