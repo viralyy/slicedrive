@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slicedrivee - Bulk Shortlink</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Slicedrivee Bulk Shortlink</h1>
+  <p>Masukkan beberapa URL, satu per baris, untuk membuat shortlink</p>
+</header>
+
+<div class="container">
+  <select id="domain">
+    <option value="cdn.slicedrivee.site">cdn.slicedrivee.site</option>
+    <option value="cdn2.slicedrivee.site">cdn2.slicedrivee.site</option>
+    <option value="media.slicedrivee.site">media.slicedrivee.site</option>
+  </select>
+
+  <textarea id="urls" rows="8" placeholder="Masukkan URL satu per baris"></textarea>
+  <button onclick="createBulkLinks()">Create Bulk Links</button>
+
+  <div class="result" id="result"></div>
+</div>
+
+<footer>
+  © 2026 slicedrivee.site
+</footer>
+
+<script>
+async function createBulkLinks() {
+  const urls = document.getElementById('urls').value.trim().split('\n').filter(Boolean);
+  const domain = document.getElementById('domain').value;
+  if(!urls.length) return alert('Masukkan setidaknya satu URL!');
+
+  const results = [];
+  for(const url of urls) {
+    const res = await fetch('https://slicedrivee.pengecrotan45.workers.dev', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({target:url, domain})
+    });
+    const data = await res.json();
+    results.push(data.ok ? `${url} → ${data.shortlink}` : `${url} → Error: ${data.error}`);
+  }
+
+  document.getElementById('result').innerText = results.join('\n');
+}
+</script>
+
+</body>
+</html>
