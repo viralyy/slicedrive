@@ -1,9 +1,0 @@
-name = "short-drive"
-main = "src/index.js"
-compatibility_date = "2025-05-01"
-compatibility_flags = ["nodejs_compat"]
-
-# KV Binding
-[[kv_namespaces]]
-binding = "DB"
-id = "short_drive"      # ← pastikan ini sama persis dengan nama KV kamu
